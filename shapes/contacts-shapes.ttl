@@ -1,0 +1,190 @@
+
+
+# Platform ontologies:
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#>.
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+# Domain ontology for Contacts in vcard-like form
+@prefix vcard: <http://www.w3.org/2006/vcard/ns#>.
+
+# @prefix shsh: <http://www.w3.org/ns/shacl-shacl#> .
+@prefix : <#>.
+
+################################## Book
+
+:AddressBookShape a sh:NodeShape ;
+  sh:targetClass vcard:AddressBook ;
+  sh:property [
+    sh:path vcard:fn ;
+    sh:datatype xsd:string;
+    sh:minCount 1;
+  ];
+  sh:property [
+    sh:path vcard:nameEmailIndex ;
+    # sh:datatype xsd:string;
+    sh:minCount 1;
+  ];
+  sh:property [
+    sh:path vcard:groupIndex ;
+    a sh:FollowMe; # Loadme before continuing...
+    sh:count 1;
+  ] ;
+  sh:property [
+    sh:path vcard:includesGroup ;
+    sh:mincount 0;
+  ] ;
+  sh:property [
+    sh:path vcard:inAddressBook ; ## Invers
+    a sh:FollowMe; # Loadme before continuing...
+    sh:count 1;
+  ] .
+
+################################## VCARDS
+
+:IndividualShape
+	a sh:NodeShape ;
+	sh:targetClass vcard:Individual ;
+  # sh: targetObjectsOf vcard:member;  # No can be other things
+  sh:closed true ; # @@ maybe
+  sh:ignoredProperties (owl:sameAs
+    <http://www.w3.org/ns/pim/ab#ABPersonFlags>
+    <http://www.w3.org/ns/pim/ab#ABDepartment>
+    <http://www.w3.org/ns/pim/ab#InstantMessage>
+    <http://purl.org/dc/elements/1.1/created>
+    <http://purl.org/dc/elements/1.1/modified>);
+  sh:property [
+		sh:path rdf:type ;
+    sh:value vcard:Individual;
+    sh:count 1;
+	]  ;
+	sh:property [
+		sh:path vcard:fn ;
+    sh:datatype xsd:string;
+    sh:pattern ".* .*" ;
+    sh:severity sh:Warning ;
+    sh:message "Full names without spaces are typically (not always) wrong.";
+    sh:minCount 1; # @@ The only thing we insist on
+    # sh:maxCount 1;   # For now, alow multiple as the same triple is in many places.
+	]  ;
+  sh:property [
+		sh:path vcard:hasUID ;
+    sh:maxCount 1;
+    sh:mixCount 1;
+    sh:pattern "^urn:uuid:";
+	]  ;
+  sh:property [
+		sh:path vcard:hasName ;
+    sh:maxCount 1;
+	]  ;
+  sh:property [
+		sh:path vcard:hasPhoto ;
+	]  ;
+  sh:property [
+		sh:path vcard:hasRelated ;
+	]  ;
+  sh:property [
+		sh:path vcard:url ; # @@ Link ot bnode??
+	]  ;
+  sh:property [
+		sh:path vcard:hasAddress ;
+	]  ;
+  sh:property [
+		sh:path vcard:anniversary;
+    sh:datatype xsd:dateTime; # @@@ Date would be more logical? dateTime in data
+    sh:maxCount 1;
+	]  ;
+  sh:property [
+		sh:path vcard:hasEmail ;
+	]  ;
+  sh:property [
+		sh:path vcard:hasTelephone ;
+	]  ;
+  # organization-name
+  sh:property [
+		sh:path vcard:organization-name;
+    sh:datatype xsd:string;
+    sh:maxCount 1;
+	]  ;
+  sh:property [
+		sh:path vcard:role;
+    sh:datatype xsd:string;
+    sh:maxCount 1;
+	]  ;
+  sh:property [
+		sh:path vcard:title;
+    sh:datatype xsd:string;
+    sh:maxCount 1;
+	]  ;
+  sh:property [
+		sh:path vcard:note;
+    sh:datatype xsd:string;
+    sh:maxCount 1;
+	]  ;
+	sh:property [
+		sh:path vcard:inAddressBook; # Must be the same book
+    a sh:BackwardLink;  # Must be stored at least in the book
+    sh:maxCount 1;
+    sh:minCount 1;
+	] .
+
+####### email
+
+:EmailShape a sh:NodeShape;
+  sh:targetObjectsOf vcard:hasEmail;
+  sh:property [
+   sh:path vcard:value;
+        sh:pattern "^mailto:" ;    # starts with mailto
+   sh:count 1;
+  ].
+
+####### phone
+
+:TelephoneShape a sh:NodeShape;
+  sh:targetObjectsOf vcard:hasTelephone;
+  sh:property [
+   sh:nodeKind sh:IRI;  # what we call NamedNode
+   sh:path vcard:value;
+        sh:pattern "^tel:" ;    # starts with tel:
+   sh:count 1;
+  ].
+  ####### web page
+
+:WebPageShape a sh:NodeShape;
+  sh:targetObjectsOf vcard:url;
+  sh:property [
+   sh:path vcard:value;    # @@ also need to contrail the type part
+        sh:pattern "^https?:" ;    # starts with http: or https:
+   sh:count 1;
+  ].
+
+######## Structured name
+
+:NameShape a sh:NodeShape;
+  sh:targetObjectOf vcard:hasName;
+  sh:property [sh:path vcard:family-name; sh:datatype xsd:string; sh:maxCount 1];
+  sh:property [sh:path vcard:given-name; sh:datatype xsd:string; sh:maxCount 1];
+  sh:property [sh:path vcard:additional-name; sh:datatype xsd:string; sh:maxCount 1];
+  sh:property [sh:path vcard:honorific-prefix; sh:datatype xsd:string; sh:maxCount 1];
+  sh:property [sh:path vcard:honorific-suffix; sh:datatype xsd:string; sh:maxCount 1];
+  sh:closed true .
+
+
+############# groups
+
+:GroupShape a sh:NodeShape;
+  sh:targetClass vcard:Group;
+  sh:property [
+    sh:path vcard:fn ;
+    sh:datatype xsd:string;
+    sh:minCount 1;
+  ];
+
+  sh:property [
+    sh:path vcard:member;
+
+  ].
+
+# ends
