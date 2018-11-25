@@ -1,6 +1,6 @@
 {
   "name": "chat-pane",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "description": "Solid-compatible Panes: Chat",
   "main": "./longChatPane.js",
   "scripts": {
