@@ -106,16 +106,13 @@ module.exports = { // noun_704.svg Canoe   noun_346319.svg = 1 Chat  noun_168933
     // Build a menu a the side (@@ reactive: on top?)
     var menuArea
     async function menuHandler (event) {
-      div.menuExpaded = !div.menuExpaded
-      if (div.menuExpaded) { // Expand
+      if (!menuArea) { // Expand
         menuArea = paneRight.appendChild(dom.createElement('div'))
         // @@ style below fix .. just make it onviious while testing
         menuArea.style = 'border-radius: 1em; border: 0.1em solid purple; padding: 0.5em; margin-left: 1em;' +
         'resize: horizontal; overflow:scroll; min-width: 25em;'
         menuArea.style.maxHeight = triptychHeight
-
         let menuTable = menuArea.appendChild(dom.createElement('table'))
-
         let registrationArea = menuTable.appendChild(dom.createElement('tr'))
         let statusArea = menuTable.appendChild(dom.createElement('tr'))
 
@@ -124,14 +121,11 @@ module.exports = { // noun_704.svg Canoe   noun_346319.svg = 1 Chat  noun_168933
           var context = {noun: 'chat room', me: me, statusArea: statusArea, div: registrationArea, dom: dom}
           await UI.authn.registrationControl(context, chatChannel, mainClass)
           console.log('Registration control finsished.')
-
           var context2 = {noun: 'chat room', me: me, statusArea: statusArea, div: menuArea, dom, kb}
           menuArea.appendChild(UI.preferences.renderPreferencesForm(chatChannel, mainClass, preferencesForm, context2))
         }
-
-        div.menuArea = menuArea
       } else { // Close menu  (hide or delete??)
-        div.menuArea.parentNode.removeChild(div.menuArea)
+        menuArea.parentNode.removeChild(menuArea)
       }
     } // menuHandler
 
@@ -142,8 +136,7 @@ module.exports = { // noun_704.svg Canoe   noun_346319.svg = 1 Chat  noun_168933
     */
     var participantsArea
     function particpantsHandler (event) {
-      div.particpantsExpaded = !div.particpantsExpaded
-      if (div.particpantsExpaded) { // Expand
+      if (!participantsArea) { // Expand
         participantsArea = paneLeft.appendChild(dom.createElement('div'))
         participantsArea.style = 'border-radius: 1em; border: 0.1em solid purple; padding: 0.5em; margin-right: 1em;' +
           ' resize: horizontal; overflow:scroll; min-width: 20em;'
@@ -153,11 +146,9 @@ module.exports = { // noun_704.svg Canoe   noun_346319.svg = 1 Chat  noun_168933
         var me = UI.authn.currentUser()
         if (!me) alert('Should be logeed in for partipants panel')
         UI.pad.manageParticipation(dom, participantsArea, chatChannel.doc(), chatChannel, me, {})
-
-        div.participantsArea = participantsArea
       } else { // Close particpants  (hide or delete??)
-        div.participantsArea.parentNode.removeChild(div.participantsArea)
-        delete div.participantsArea
+        participantsArea.parentNode.removeChild(participantsArea)
+        participantsArea = null
       }
     } // particpantsHandler
 
