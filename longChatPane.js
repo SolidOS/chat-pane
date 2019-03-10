@@ -126,6 +126,7 @@ module.exports = { // noun_704.svg Canoe   noun_346319.svg = 1 Chat  noun_168933
         }
       } else { // Close menu  (hide or delete??)
         menuArea.parentNode.removeChild(menuArea)
+        menuArea = null
       }
     } // menuHandler
 
