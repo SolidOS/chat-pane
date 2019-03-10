@@ -1,0 +1,199 @@
+
+
+# Platform ontologies:
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#>.
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+# Domain ontologies
+# @prefix vcard: <http://www.w3.org/2006/vcard/ns#>.
+
+@prefix dc: <http://purl.org/dc/elements/1.1/>.
+@prefix foaf: <http://xmlns.com/foaf/0.1/>.
+@prefix terms: <http://purl.org/dc/terms/>.
+@prefix flow: <http://www.w3.org/2005/01/wf/flow#>.
+@prefix ical: <http://www.w3.org/2002/12/cal/ical#>.
+@prefix mee: <http://www.w3.org/ns/pim/meeting#>.
+@prefix schema: <http:/schema.org/>.
+@prefix sioc: <http://rdfs.org/sioc/ns#>.
+@prefix solid: <http://www.w3.org/ns/solid/terms#>.
+@prefix ui: <http://www.w3.org/ns/ui#>.
+
+@prefix : <#>.
+
+##################### Chat Channel
+
+<> rdfs:comment """This is a shape file for Solid Chat
+
+with data like:
+
+:this
+    a mee:LongChat;
+    n2:author c:i;
+    n2:created "2018-07-06T21:36:04Z"^^XML:dateTime;
+    n2:title "Chat channel";
+    flow:participation
+        :id1530912972126, :id1538415256782, :id1538415459106 .
+
+        :id1530912972126
+            ic:dtstart "2018-07-06T21:36:12Z"^^XML:dateTime;
+            flow:participant c:i;
+            terms:expandImagesInline true;
+            ui:backgroundColor "#c1d0c8".
+
+
+  and in the dated chat file:
+
+
+  :id1549976046538
+  a schem:AgreeAction; schem:agent c:i; schem:target :Msg1549975677890.
+
+  :Msg1549975677890
+      terms:created "2019-02-12T12:47:57Z"^^XML:dateTime;
+      n:content "Tuesday";
+      n0:maker c:i.
+        """ .
+
+:ChatChannelShape a sh:NodeShape ;
+  sh:targetClass mee:LongChat ;
+  sh:property
+
+  [ sh:path rdf:type ;
+    sh:value mee:LongChat;
+    sh:count 1 ],
+
+  [ sh:path dc:author ;
+    sh:count 1],
+
+  [ sh:path dc:title;
+    sh:datatype xsd:string;
+    sh:count 1 ],
+
+  [ sh:path dc:created;
+    sh:datatype xsd:dateTime;
+    sh:count 1],
+
+ [ sh:path ui:sharedPreferences ;
+   sh:count 1],
+
+  [ sh:path  flow:participation ;
+    sh:minCount 0 ] .
+
+################ Shared Preferences
+
+:SharedPreferencesShape a sh:NodeShape;
+    sh:targetObjectsOf ui:sharedPreferences;
+
+    sh:property [
+      sh:path  solid:expandImagesInline;
+      sh:datatype xsd:boolean;
+      sh:maxCount 1;
+    ];
+
+    sh:property [
+      sh:path  solid:inlineImageHeightEms;
+      sh:datatype xsd:integer;
+      sh:minCount 0;
+      sh:maxCount 1;
+    ];
+
+    sh:property [
+      sh:path  solid:newestFirst;
+      sh:datatype xsd:boolean;
+      sh:minCount 0;
+      sh:maxCount 1;
+    ] .
+
+
+
+################ Participation objects
+
+:ParticpationShape a sh:NodeShape;
+    sh:targetObjectsOf flow:participation;
+
+    sh:property [
+      sh:path ical:dtstart;
+      sh:datatype xsd:dateTime;
+      sh:count 1;
+    ];
+
+    sh:property [
+      sh:path flow:participant;
+      sh:count 1;
+    ];
+
+    sh:property [
+      sh:path  solid:colorizeByAuthor;
+      sh:datatype xsd:boolean;
+      sh:maxCount 1;
+    ];
+
+   # Particpants can stored their personal preferences for this chat
+
+    sh:property [
+      sh:path  solid:expandImagesInline;
+      sh:datatype xsd:boolean;
+      sh:maxCount 1;
+    ];
+
+    sh:property [
+      sh:path  solid:inlineImageHeightEms;
+      sh:datatype xsd:integer;
+      sh:minCount 0;
+      sh:maxCount 1;
+    ];
+
+    sh:property [
+      sh:path  solid:newestFirst;
+      sh:datatype xsd:boolean;
+      sh:minCount 0;
+      sh:maxCount 1;
+    ];
+
+    sh:property [
+      sh:path  ui:backgroundColor;
+      sh:minCount 0;
+      sh:maxCount 1;
+      sh:datatype xsd:string;
+      sh:pattern "#[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]" ;
+    ];
+    .
+
+########## Messages
+
+
+:MessageShape a sh:NodeShape;
+     sh:targetObjectsOf flow:message;
+
+     sh:property
+       [ sh:path terms:created; sh:count 1; sh:datatype xsd:dateTime],
+       [ sh:path foaf:maker;    sh:count 1],
+       [ sh:path sioc:content;  sh:datatype xsd:string; sh:count 1];
+
+  sh:reverseProperty # @@@@@@@@@@@@@@@@
+        [ sh:path flow:message; sh:count 1] .
+
+
+
+########## Actions express sentiments
+
+:ActionShape a sh:NodeShape;
+ sh:targetSubjectsOf schema:target;
+
+ sh:property [
+   sh:path rdf:type;   # object Must be subclass of schema:Action
+   sh:count 1;
+ ];
+ sh:property [
+   sh:path schema:agent;
+   sh:count 1;
+ ];
+ sh:property [
+   sh:path schema:target;
+   sh:count 1;
+ ] .
+
+
+# ends

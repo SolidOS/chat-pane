@@ -9,6 +9,9 @@ const ns = UI.ns
 const kb = UI.store
 const mainClass = ns.meeting('LongChat') // @@ something from SIOC?
 
+// const menuIcon = 'noun_897914.svg'
+const SPANNER_ICON = 'noun_344563.svg'
+
 module.exports = { // noun_704.svg Canoe   noun_346319.svg = 1 Chat  noun_1689339.svg = three chat
   icon: UI.icons.iconBase + 'noun_1689339.svg',
 
@@ -17,6 +20,9 @@ module.exports = { // noun_704.svg Canoe   noun_346319.svg = 1 Chat  noun_168933
   label: function (subject) {
     if (kb.holds(subject, ns.rdf('type'), ns.meeting('LongChat'))) { // subject is the object
       return 'Chat channnel'
+    } // Looks like a message -- might not havre any class declared
+    if (kb.any(subject, ns.sioc('content')) && kb.any(subject, ns.dct('created'))) {
+      return 'message'
     }
     return null // Suppress pane otherwise
   },
@@ -53,7 +59,7 @@ module.exports = { // noun_704.svg Canoe   noun_346319.svg = 1 Chat  noun_168933
     })
   },
 
-  render: function (subject, dom) {
+  render: function (subject, dom, paneOptions) {
     /* Preferences
     **
     **  Things like whether to color text by author webid, to expand image URLs inline,
@@ -62,7 +68,10 @@ module.exports = { // noun_704.svg Canoe   noun_346319.svg = 1 Chat  noun_168933
     ** and per instance/user combo. Per instance? not sure about unless it is valuable
     ** for everyone to be seeing the same thing.
     */
+    // const DCT = $rdf.Namespace('http://purl.org/dc/terms/')
+
     const preferencesFormText = `
+
   @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
   @prefix solid: <http://www.w3.org/ns/solid/terms#>.
   @prefix ui: <http://www.w3.org/ns/ui#>.
@@ -92,56 +101,119 @@ module.exports = { // noun_704.svg Canoe   noun_346319.svg = 1 Chat  noun_168933
     }
     let preferenceProperties = kb.statementsMatching(null, ns.ui.property, null, preferencesFormDoc).map(st => st.object)
 
-    //          Menu
+    //          Settings Menu
     //
     // Build a menu a the side (@@ reactive: on top?)
-    function menuHandler (event, subject, menuOptions) {
-      let div = menuOptions.div
-      let dom = menuOptions.dom
-      // let me = menuOptions.me
-
-      div.menuExpaded = !div.menuExpaded
-      if (div.menuExpaded) { // Expand
-        let menuArea = div.appendChild(dom.createElement('div'))
+    var menuArea
+    async function menuHandler (event) {
+      if (!menuArea) { // Expand
+        menuArea = paneRight.appendChild(dom.createElement('div'))
         // @@ style below fix .. just make it onviious while testing
-        menuArea.style = 'border-radius: 1em; border: 0.1em solid purple; padding: 1em;'
+        menuArea.style = 'border-radius: 1em; border: 0.1em solid purple; padding: 0.5em; margin-left: 1em;' +
+        'resize: horizontal; overflow:scroll; min-width: 25em;'
+        menuArea.style.maxHeight = triptychHeight
         let menuTable = menuArea.appendChild(dom.createElement('table'))
-
-        let participantsArea = menuTable.appendChild(dom.createElement('tr'))
         let registrationArea = menuTable.appendChild(dom.createElement('tr'))
-        let preferencesArea = menuTable.appendChild(dom.createElement('tr'))
-        // let commandsArea = menuTable.appendChild(dom.createElement('tr'))
         let statusArea = menuTable.appendChild(dom.createElement('tr'))
 
-        UI.pad.manageParticipation(dom, participantsArea, subject.doc(), subject, menuOptions.me, {})
-
-        var context = {noun: 'chat room', me: menuOptions.me, statusArea: statusArea, div: registrationArea, dom: dom}
-        UI.authn.registrationControl(context, subject, mainClass).then(function (context) {
+        var me = UI.authn.currentUser()
+        if (me) {
+          var context = {noun: 'chat room', me: me, statusArea: statusArea, div: registrationArea, dom: dom}
+          await UI.authn.registrationControl(context, chatChannel, mainClass)
           console.log('Registration control finsished.')
-        })
-
-        var context2 = {noun: 'chat room', me: menuOptions.me, statusArea: statusArea, div: preferencesArea, dom, kb}
-        if (!menuOptions.me) alert('menu: no me!')
-        preferencesArea.appendChild(UI.preferences.renderPreferencesForm(subject, mainClass, preferencesForm, context2))
-
-        div.menuArea = menuArea
+          var context2 = {noun: 'chat room', me: me, statusArea: statusArea, div: menuArea, dom, kb}
+          menuArea.appendChild(UI.preferences.renderPreferencesForm(chatChannel, mainClass, preferencesForm, context2))
+        }
       } else { // Close menu  (hide or delete??)
-        div.removeChild(div.menuArea)
+        menuArea.parentNode.removeChild(menuArea)
+        menuArea = null
       }
     } // menuHandler
 
+    //          People
+    //
+    /* Build a particpants a the side
+     * (@@ reactive: on top?)
+    */
+    var participantsArea
+    function particpantsHandler (event) {
+      if (!participantsArea) { // Expand
+        participantsArea = paneLeft.appendChild(dom.createElement('div'))
+        participantsArea.style = 'border-radius: 1em; border: 0.1em solid purple; padding: 0.5em; margin-right: 1em;' +
+          ' resize: horizontal; overflow:scroll; min-width: 20em;'
+        participantsArea.style.maxHeight = triptychHeight
+
+        // Record my participation and display participants
+        var me = UI.authn.currentUser()
+        if (!me) alert('Should be logeed in for partipants panel')
+        UI.pad.manageParticipation(dom, participantsArea, chatChannel.doc(), chatChannel, me, {})
+      } else { // Close particpants  (hide or delete??)
+        participantsArea.parentNode.removeChild(participantsArea)
+        participantsArea = null
+      }
+    } // particpantsHandler
+
+    var chatChannel = subject
+    var selectedMessage = null
+    if (kb.holds(subject, ns.rdf('type'), ns.meeting('LongChat'))) { // subject is the chatChannel
+      console.log('Chat channnel')
+
+     // Looks like a message -- might not havre any class declared
+    } else if (kb.any(subject, ns.sioc('content')) && kb.any(subject, ns.dct('created'))) {
+      console.log('message')
+      selectedMessage = subject
+      chatChannel = kb.any(null, ns.wf('message'), selectedMessage)
+      if (!chatChannel) throw new Error('Message has no link to chatChannel')
+    }
+
     var div = dom.createElement('div')
+
+    // Three large colons for particpant, chat, settings
+    const triptychHeight = '30cm' // @@ need to be able to set to  window!
+    var triptych = div.appendChild(dom.createElement('table'))
+    triptych.style.maxHeight = '12"' // Screen max
+    var paneRow = triptych.appendChild(dom.createElement('tr'))
+    var paneLeft = paneRow.appendChild(dom.createElement('td'))
+    var paneMiddle = paneRow.appendChild(dom.createElement('td'))
+    var paneRight = paneRow.appendChild(dom.createElement('td'))
+    var paneBottom = triptych.appendChild(dom.createElement('tr'))
+
+    paneBottom.appendChild(dom.createElement('td'))
+    const buttonCell = paneBottom.appendChild(dom.createElement('td'))
+    paneBottom.appendChild(dom.createElement('td'))
+
+    // Button to bring up particpants drawer on left
+    const particpantsIcon = 'noun_339237.svg'
+    var particpantsButton = UI.widgets.button(dom, UI.icons.iconBase + particpantsIcon, 'particpants ...') // wider var
+    buttonCell.appendChild(particpantsButton)
+    particpantsButton.addEventListener('click', particpantsHandler)
+
+    var menuButton = UI.widgets.button(dom, UI.icons.iconBase + SPANNER_ICON, 'Menu ...') // wider var
+    buttonCell.appendChild(menuButton)
+    menuButton.style.float = 'right'
+    menuButton.addEventListener('click', menuHandler)
+
     div.setAttribute('class', 'chatPane')
-    let options = {infinite: true, menuHandler: menuHandler} // Like newestFirst
+    let options = {infinite: true} //  was: menuHandler: menuHandler
     let context = {noun: 'chat room', div, dom}
     context.me = UI.authn.currentUser() // If already logged on
 
-    UI.preferences.getPreferencesForClass(subject, mainClass, preferenceProperties, context).then(prefMap => {
+    UI.preferences.getPreferencesForClass(chatChannel, mainClass, preferenceProperties, context).then(prefMap => {
       for (let propuri in prefMap) {
         options[propuri.split('#')[1]] = prefMap[propuri]
       }
-      div.appendChild(UI.infiniteMessageArea(dom, kb, subject, options))
-    }, err => UI.widgets.complain(err))
+      if (selectedMessage) {
+        options.selectedMessage = selectedMessage
+      }
+      if (paneOptions.solo) { // This is the top pane, title, scrollbar etc are ours
+        options.solo = true
+      }
+      let chatControl = UI.infiniteMessageArea(dom, kb, chatChannel, options)
+      chatControl.style.resize = 'both'
+      chatControl.style.overflow = 'auto'
+      chatControl.style.maxHeight = triptychHeight
+      paneMiddle.appendChild(chatControl)
+    }, err => UI.widgets.complain(context, err))
 
     return div
   }
