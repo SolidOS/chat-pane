@@ -1,5 +1,3 @@
-
-
 # Platform ontologies:
 @prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
@@ -22,6 +20,8 @@
 @prefix ui: <http://www.w3.org/ns/ui#>.
 
 @prefix : <#>.
+
+# Apr 2019. Changed sh:count by sh:minCount/sh:maxCount
 
 ##################### Chat Channel
 
@@ -55,6 +55,8 @@ with data like:
       n:content "Tuesday";
       n0:maker c:i.
         """ .
+
+:ChatChannelShape sh:targetNode :this .
 
 :ChatChannelShape a sh:NodeShape ;
   sh:targetClass mee:LongChat ;
@@ -110,18 +112,20 @@ with data like:
 
 ################ Participation objects
 
-:ParticpationShape a sh:NodeShape;
+:ParticipationShape a sh:NodeShape;
     sh:targetObjectsOf flow:participation;
 
     sh:property [
       sh:path ical:dtstart;
       sh:datatype xsd:dateTime;
-      sh:count 1;
+      sh:minCount 1 ;
+      sh:maxCount 1 ;
     ];
 
     sh:property [
       sh:path flow:participant;
-      sh:count 1;
+      sh:minCount 1;
+      sh:maxCount 1;
     ];
 
     sh:property [
@@ -130,7 +134,7 @@ with data like:
       sh:maxCount 1;
     ];
 
-   # Particpants can stored their personal preferences for this chat
+   # Participants can store their personal preferences for this chat
 
     sh:property [
       sh:path  solid:expandImagesInline;
@@ -165,16 +169,29 @@ with data like:
 
 
 :MessageShape a sh:NodeShape;
-     sh:targetObjectsOf flow:message;
+  sh:targetObjectsOf flow:message;
 
-     sh:property
-       [ sh:path terms:created; sh:count 1; sh:datatype xsd:dateTime],
-       [ sh:path foaf:maker;    sh:count 1],
-       [ sh:path sioc:content;  sh:datatype xsd:string; sh:count 1];
+  sh:property
+    [ sh:path terms:created; 
+      sh:minCount 1; 
+      sh:maxCount 1;
+      sh:datatype xsd:dateTime
+    ],
+       
+    [ sh:path foaf:maker;    
+      sh:minCount 1; 
+      sh:maxCount 1;
+    ],
 
-  sh:reverseProperty # @@@@@@@@@@@@@@@@
-        [ sh:path flow:message; sh:count 1] .
+    [ sh:path sioc:content;  
+      sh:datatype xsd:string; 
+      sh:minCount 1;
+      sh:maxCount 1
+    ];
 
+    [ sh:path [ sh:inversePath flow:message ] ;
+      sh:minCount 1; sh:maxCount 1 
+    ] .
 
 
 ########## Actions express sentiments
@@ -184,15 +201,20 @@ with data like:
 
  sh:property [
    sh:path rdf:type;   # object Must be subclass of schema:Action
-   sh:count 1;
+   sh:minCount 1;
+   sh:maxCount 1;
  ];
+
  sh:property [
    sh:path schema:agent;
-   sh:count 1;
+   sh:minCount 1;
+   sh:maxCount 1;
  ];
+
  sh:property [
    sh:path schema:target;
-   sh:count 1;
+   sh:minCount 1;
+   sh:maxCount 1;
  ] .
 
 
