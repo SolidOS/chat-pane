@@ -54,38 +54,8 @@ module.exports = {
    * we want to dis-incentivize the use of Small Chat until we've gotten the work done
    * by making it difficult to create new data resources that uses the Small Chat view
    * but we still want existing resources to be viewed by the Small Chat view
+   * hence we removed the properties mintClass and mintNew
    */
-  // mintClass: ns.meeting('Chat'),
-  //
-  // mintNew: function (newPaneOptions) {
-  //   var updater = kb.updater
-  //   if (newPaneOptions.me && !newPaneOptions.me.uri) throw new Error('chat mintNew:  Invalid userid ' + newPaneOptions.me)
-  //
-  //   var newInstance = newPaneOptions.newInstance = newPaneOptions.newInstance || kb.sym(newPaneOptions.newBase + 'index.ttl#this')
-  //   var newChatDoc = newInstance.doc()
-  //
-  //   kb.add(newInstance, ns.rdf('type'), ns.meeting('Chat'), newChatDoc)
-  //   kb.add(newInstance, ns.dc('title'), 'Chat', newChatDoc)
-  //   kb.add(newInstance, ns.dc('created'), new Date(), newChatDoc)
-  //   if (newPaneOptions.me) {
-  //     kb.add(newInstance, ns.dc('author'), newPaneOptions.me, newChatDoc)
-  //   }
-  //
-  //   return new Promise(function (resolve, reject) {
-  //     updater.put(
-  //       newChatDoc,
-  //       kb.statementsMatching(undefined, undefined, undefined, newChatDoc),
-  //       'text/turtle',
-  //       function (uri2, ok, message) {
-  //         if (ok) {
-  //           resolve(newPaneOptions)
-  //         } else {
-  //           reject(new Error('FAILED to save new tool at: ' + uri2 + ' : ' +
-  //             message))
-  //         };
-  //       })
-  //   })
-  // },
 
   render: function (subject, dom) {
     var complain = function complain (message, color) {
