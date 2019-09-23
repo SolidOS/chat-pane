@@ -13,6 +13,15 @@ module.exports = {
 
   name: 'chat',
 
+  /*
+   * As part of the work on merging the existing chat views (aka panes) into one view
+   * https://github.com/solid/chat-pane/issues/17
+   * we want to dis-incentivize the use of Small Chat until we've gotten the work done
+   * by making it difficult to create new data resources that uses the Small Chat view
+   * but we still want existing resources to be viewed by the Small Chat view
+   */
+  audience: [ns.solid('PowerUser')],
+
   /*   AN RRSAgent IRC log:
 
   <irc://localhost:6667/&mit>
