@@ -39,13 +39,6 @@
     "lint-staged": "^10.0.0-0",
     "prettier-standard": "^15.0.1"
   },
-  "standard": {
-    "globals": [
-      "$rdf",
-      "tabulator",
-      "QUnit"
-    ]
-  },
   "husky": {
     "hooks": {
       "pre-commit": "lint-staged"
