@@ -4,7 +4,6 @@
   "description": "Solid-compatible Panes: Chat",
   "main": "./index.js",
   "scripts": {
-    "precommit": "lint-staged",
     "test": "lint-staged"
   },
   "repository": {
