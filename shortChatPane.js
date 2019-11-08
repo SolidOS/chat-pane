@@ -1,8 +1,9 @@
 /*   Chat Pane
-**
-**  Plan is to support a finte number of chat graph shapes
-** and investigate the interop between them.
-*/
+ **
+ **  Plan is to support a finte number of chat graph shapes
+ ** and investigate the interop between them.
+ */
+/* global $rdf */
 
 const UI = require('solid-ui')
 const ns = UI.ns
@@ -48,10 +49,12 @@ module.exports = {
     var n = UI.store.each(subject, ns.wf('message')).length
     if (n > 0) return 'Chat (' + n + ')' // Show how many in hover text
 
-    if (kb.holds(subject, ns.rdf('type'), ns.meeting('Chat'))) { // subject is the file
+    if (kb.holds(subject, ns.rdf('type'), ns.meeting('Chat'))) {
+      // subject is the file
       return 'Meeting chat'
     }
-    if (kb.holds(undefined, ns.rdf('type'), ns.foaf('ChatChannel'), subject)) { // subject is the file
+    if (kb.holds(undefined, ns.rdf('type'), ns.foaf('ChatChannel'), subject)) {
+      // subject is the file
       return 'IRC log' // contains anything of this type
     }
     return null // Suppress pane otherwise
@@ -61,9 +64,13 @@ module.exports = {
 
   mintNew: function (newPaneOptions) {
     var updater = kb.updater
-    if (newPaneOptions.me && !newPaneOptions.me.uri) throw new Error('chat mintNew:  Invalid userid ' + newPaneOptions.me)
+    if (newPaneOptions.me && !newPaneOptions.me.uri) {
+      throw new Error('chat mintNew:  Invalid userid ' + newPaneOptions.me)
+    }
 
-    var newInstance = newPaneOptions.newInstance = newPaneOptions.newInstance || kb.sym(newPaneOptions.newBase + 'index.ttl#this')
+    var newInstance = (newPaneOptions.newInstance =
+      newPaneOptions.newInstance ||
+      kb.sym(newPaneOptions.newBase + 'index.ttl#this'))
     var newChatDoc = newInstance.doc()
 
     kb.add(newInstance, ns.rdf('type'), ns.meeting('Chat'), newChatDoc)
@@ -82,10 +89,12 @@ module.exports = {
           if (ok) {
             resolve(newPaneOptions)
           } else {
-            reject(new Error('FAILED to save new tool at: ' + uri2 + ' : ' +
-              message))
-          };
-        })
+            reject(
+              new Error('FAILED to save new tool at: ' + uri2 + ' : ' + message)
+            )
+          }
+        }
+      )
     })
   },
 
@@ -99,26 +108,30 @@ module.exports = {
 
     var div = dom.createElement('div')
     div.setAttribute('class', 'chatPane')
-    let options = {} // Like newestFirst
+    const options = {} // Like newestFirst
     var messageStore
-    if (kb.holds(subject, ns.rdf('type'), ns.meeting('Chat'))) { // subject may be the file
+    if (kb.holds(subject, ns.rdf('type'), ns.meeting('Chat'))) {
+      // subject may be the file
       messageStore = subject.doc()
     } else if (kb.any(subject, UI.ns.wf('message'))) {
       messageStore = UI.store.any(subject, UI.ns.wf('message')).doc()
-    } else if (kb.holds(undefined, ns.rdf('type'), ns.foaf('ChatChannel'), subject) ||
-               kb.holds(subject, ns.rdf('type'), ns.foaf('ChatChannel'))) { // subject is the file
+    } else if (
+      kb.holds(undefined, ns.rdf('type'), ns.foaf('ChatChannel'), subject) ||
+      kb.holds(subject, ns.rdf('type'), ns.foaf('ChatChannel'))
+    ) {
+      // subject is the file
       var ircLogQuery = function () {
         var query = new $rdf.Query('IRC log entries')
         var v = []
         var vv = ['chan', 'msg', 'date', 'list', 'pred', 'creator', 'content']
         vv.map(function (x) {
-          query.vars.push(v[x] = $rdf.variable(x))
+          query.vars.push((v[x] = $rdf.variable(x)))
         })
-        query.pat.add(v['chan'], ns.foaf('chatEventList'), v['list']) // chatEventList
-        query.pat.add(v['list'], v['pred'], v['msg']) //
-        query.pat.add(v['msg'], ns.dc('date'), v['date'])
-        query.pat.add(v['msg'], ns.dc('creator'), v['creator'])
-        query.pat.add(v['msg'], ns.dc('description'), v['content'])
+        query.pat.add(v.chan, ns.foaf('chatEventList'), v.list) // chatEventList
+        query.pat.add(v.list, v.pred, v.msg) //
+        query.pat.add(v.msg, ns.dc('date'), v.date)
+        query.pat.add(v.msg, ns.dc('creator'), v.creator)
+        query.pat.add(v.msg, ns.dc('description'), v.content)
         return query
       }
       messageStore = subject.doc()
@@ -127,14 +140,14 @@ module.exports = {
       complain('Unknown chat type')
     }
 
-//    var context = {dom, div}
-//    UI.authn.logIn(context).then( context => { // The widget itself sees to login
+    //    var context = {dom, div}
+    //    UI.authn.logIn(context).then( context => { // The widget itself sees to login
 
     div.appendChild(UI.messageArea(dom, kb, subject, messageStore, options))
     kb.updater.addDownstreamChangeListener(messageStore, function () {
       UI.widgets.refreshTree(div)
     }) // Live update
-//    })
+    //    })
 
     return div
   }
