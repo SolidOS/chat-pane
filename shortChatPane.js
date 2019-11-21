@@ -7,7 +7,6 @@
 
 const UI = require('solid-ui')
 const ns = UI.ns
-const kb = UI.store
 
 module.exports = {
   icon: UI.icons.iconBase + 'noun_346319.svg',
@@ -45,8 +44,9 @@ module.exports = {
 
   */
 
-  label: function (subject) {
-    var n = UI.store.each(subject, ns.wf('message')).length
+  label: function (subject, context) {
+    const kb = context.session.store
+    var n = kb.each(subject, ns.wf('message')).length
     if (n > 0) return 'Chat (' + n + ')' // Show how many in hover text
 
     if (kb.holds(subject, ns.rdf('type'), ns.meeting('Chat'))) {
@@ -62,7 +62,8 @@ module.exports = {
 
   mintClass: ns.meeting('Chat'),
 
-  mintNew: function (newPaneOptions) {
+  mintNew: function (context, newPaneOptions) {
+    const kb = context.session.store
     var updater = kb.updater
     if (newPaneOptions.me && !newPaneOptions.me.uri) {
       throw new Error('chat mintNew:  Invalid userid ' + newPaneOptions.me)
@@ -98,7 +99,9 @@ module.exports = {
     })
   },
 
-  render: function (subject, dom) {
+  render: function (subject, context) {
+    const kb = context.session.store
+    const dom = context.dom
     var complain = function complain (message, color) {
       var pre = dom.createElement('pre')
       pre.setAttribute('style', 'background-color: ' + color || '#eed' + ';')
