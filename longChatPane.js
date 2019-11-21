@@ -142,33 +142,31 @@ module.exports = {
 
         var me = UI.authn.currentUser()
         if (me) {
-          var menuHandlerContext = {
-            noun: 'chat room',
-            me: me,
-            statusArea: statusArea,
-            div: registrationArea,
-            dom: dom
-          }
           await UI.authn.registrationControl(
-            menuHandlerContext,
+            {
+              noun: 'chat room',
+              me: me,
+              statusArea: statusArea,
+              div: registrationArea,
+              dom: dom
+            },
             chatChannel,
             mainClass
           )
           console.log('Registration control finsished.')
-          var context2 = {
-            noun: 'chat room',
-            me: me,
-            statusArea: statusArea,
-            div: menuArea,
-            dom,
-            kb
-          }
           menuArea.appendChild(
             UI.preferences.renderPreferencesForm(
               chatChannel,
               mainClass,
               preferencesForm,
-              context2
+              {
+                noun: 'chat room',
+                me: me,
+                statusArea: statusArea,
+                div: menuArea,
+                dom,
+                kb
+              }
             )
           )
         }
@@ -266,15 +264,15 @@ module.exports = {
 
     div.setAttribute('class', 'chatPane')
     const options = { infinite: true } //  was: menuHandler: menuHandler
-    const context3 = { noun: 'chat room', div, dom: dom }
-    context3.me = UI.authn.currentUser() // If already logged on
+    const participantsHandlerContext = { noun: 'chat room', div, dom: dom }
+    participantsHandlerContext.me = UI.authn.currentUser() // If already logged on
 
     UI.preferences
       .getPreferencesForClass(
         chatChannel,
         mainClass,
         preferenceProperties,
-        context3
+        participantsHandlerContext
       )
       .then(
         prefMap => {
@@ -299,7 +297,7 @@ module.exports = {
           chatControl.style.maxHeight = triptychHeight
           paneMiddle.appendChild(chatControl)
         },
-        err => UI.widgets.complain(context3, err)
+        err => UI.widgets.complain(participantsHandlerContext, err)
       )
 
     return div
