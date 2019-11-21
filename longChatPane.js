@@ -6,7 +6,6 @@
 
 const UI = require('solid-ui')
 const ns = UI.ns
-const kb = UI.store
 const mainClass = ns.meeting('LongChat') // @@ something from SIOC?
 
 // const menuIcon = 'noun_897914.svg'
@@ -18,7 +17,8 @@ module.exports = {
 
   name: 'long chat',
 
-  label: function (subject) {
+  label: function (subject, context) {
+    const kb = context.session.store
     if (kb.holds(subject, ns.rdf('type'), ns.meeting('LongChat'))) {
       // subject is the object
       return 'Chat channnel'
@@ -34,7 +34,8 @@ module.exports = {
 
   mintClass: mainClass,
 
-  mintNew: function (newPaneOptions) {
+  mintNew: function (context, newPaneOptions) {
+    const kb = context.session.store
     var updater = kb.updater
     if (newPaneOptions.me && !newPaneOptions.me.uri) {
       throw new Error('chat mintNew:  Invalid userid ' + newPaneOptions.me)
@@ -72,7 +73,10 @@ module.exports = {
     })
   },
 
-  render: function (subject, dom, paneOptions) {
+  render: function (subject, context, paneOptions) {
+    const dom = context.dom
+    const kb = context.session.store
+
     /* Preferences
      **
      **  Things like whether to color text by author webid, to expand image URLs inline,
@@ -138,14 +142,18 @@ module.exports = {
 
         var me = UI.authn.currentUser()
         if (me) {
-          var context = {
+          var menuHandlerContext = {
             noun: 'chat room',
             me: me,
             statusArea: statusArea,
             div: registrationArea,
             dom: dom
           }
-          await UI.authn.registrationControl(context, chatChannel, mainClass)
+          await UI.authn.registrationControl(
+            menuHandlerContext,
+            chatChannel,
+            mainClass
+          )
           console.log('Registration control finsished.')
           var context2 = {
             noun: 'chat room',
@@ -258,15 +266,15 @@ module.exports = {
 
     div.setAttribute('class', 'chatPane')
     const options = { infinite: true } //  was: menuHandler: menuHandler
-    const context = { noun: 'chat room', div, dom }
-    context.me = UI.authn.currentUser() // If already logged on
+    const context3 = { noun: 'chat room', div, dom: dom }
+    context3.me = UI.authn.currentUser() // If already logged on
 
     UI.preferences
       .getPreferencesForClass(
         chatChannel,
         mainClass,
         preferenceProperties,
-        context
+        context3
       )
       .then(
         prefMap => {
@@ -291,7 +299,7 @@ module.exports = {
           chatControl.style.maxHeight = triptychHeight
           paneMiddle.appendChild(chatControl)
         },
-        err => UI.widgets.complain(context, err)
+        err => UI.widgets.complain(context3, err)
       )
 
     return div
