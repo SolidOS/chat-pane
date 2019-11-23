@@ -31,7 +31,7 @@
   },
   "homepage": "https://github.com/solid/chat-pane",
   "dependencies": {
-    "solid-ui": ">=0.12.0"
+    "solid-ui": "^2.0.0"
   },
   "devDependencies": {
     "husky": "^3.0.8",
