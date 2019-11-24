@@ -127,7 +127,7 @@ module.exports = {
     //
     // Build a menu a the side (@@ reactive: on top?)
     var menuArea
-    async function menuHandler (event) {
+    async function menuHandler (_event) {
       if (!menuArea) {
         // Expand
         menuArea = paneRight.appendChild(dom.createElement('div'))
@@ -183,7 +183,7 @@ module.exports = {
      * (@@ reactive: on top?)
      */
     var participantsArea
-    function particpantsHandler (event) {
+    function particpantsHandler (_event) {
       if (!participantsArea) {
         // Expand
         participantsArea = paneLeft.appendChild(dom.createElement('div'))
