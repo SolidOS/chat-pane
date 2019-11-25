@@ -6,7 +6,9 @@
   "scripts": {
     "lint": "eslint '*.js'",
     "lint-fix": "eslint '*.js' --fix",
-    "test": "npm run lint"
+    "test": "npm run lint",
+    "prepublishOnly": "npm test",
+    "postpublish": "git push origin master --follow-tags"
   },
   "repository": {
     "type": "git",
@@ -43,7 +45,8 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged"
+      "pre-commit": "lint-staged",
+      "pre-push": "npm test"
     }
   },
   "lint-staged": {
