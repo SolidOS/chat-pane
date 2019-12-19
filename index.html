@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Solid Chat</title>
+    <style>
+      body {
+        margin: 10%;
+      }
+      input {
+        background-color: #eef;
+        padding: 0.5em;
+        border: 0.5em solid white;
+        font-size: 120%;
+      }
+    </style>
+    <script
+      type="text/javascript"
+      src="https://solid.github.io/mashlib/dist/mashlib.js"
+    ></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // panes.runDataBrowser()
+        // Set up the view for the current subject
+        const uri = decodeURIComponent(window.location.hash.substr(1))
+        if (uri.length === 0) {
+          window.location = '?#' + encodeURIComponent('https://michielbdejong.inrupt.net/meetings/Data%20browser%2016%20Dec%202019/Chat/chat.ttl')
+        }
+        console.log(uri)
+        const subject = $rdf.sym(uri)
+        const outliner = panes.getOutliner(document)
+        outliner.GotoSubject(subject, true, undefined, true, undefined)
+      })
+    </script>
+  </head>
+  <body>
+    <h1>Solid Chat</h1>
+    <p>
+      (under construction)
+    </p>
+
+    <div class="TabulatorOutline" id="DummyUUID">
+      <table id="outline"></table>
+    </div>
+    <div class="TabulatorOutline" id="FormTarget"></div>
+  </body>
+</html>
