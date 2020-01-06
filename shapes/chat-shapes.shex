@@ -1,0 +1,95 @@
+# Platform ontologies:
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#>.
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+# Domain ontologies
+# @prefix vcard: <http://www.w3.org/2006/vcard/ns#>.
+
+@prefix dc: <http://purl.org/dc/elements/1.1/>.
+@prefix foaf: <http://xmlns.com/foaf/0.1/>.
+@prefix terms: <http://purl.org/dc/terms/>.
+@prefix flow: <http://www.w3.org/2005/01/wf/flow#>.
+@prefix ical: <http://www.w3.org/2002/12/cal/ical#>.
+@prefix mee: <http://www.w3.org/ns/pim/meeting#>.
+@prefix schema: <http:/schema.org/>.
+@prefix sioc: <http://rdfs.org/sioc/ns#>.
+@prefix solid: <http://www.w3.org/ns/solid/terms#>.
+@prefix ui: <http://www.w3.org/ns/ui#>.
+
+@prefix : <#>.
+
+# This file is based on: https://github.com/solid/chat-pane/blob/chat-ui/shapes/chat-shapes.ttl
+#This is a shape file for Solid Chat
+#
+# with data like:
+#
+#:this
+#    a mee:LongChat;
+#    n2:author c:i;
+#    n2:created "2018-07-06T21:36:04Z"^^XML:dateTime;
+#    n2:title "Chat channel";
+#    flow:participation
+#        :id1530912972126, :id1538415256782, :id1538415459106 .
+#
+#        :id1530912972126
+#            ic:dtstart "2018-07-06T21:36:12Z"^^XML:dateTime;
+#            flow:participant c:i;
+#            terms:expandImagesInline true;
+#            ui:backgroundColor "#c1d0c8".
+#  and in the dated chat file:
+#  :id1549976046538 a schem:AgreeAction; schem:agent c:i; schem:target :Msg1549975677890.
+#
+#  :Msg1549975677890
+#      terms:created "2019-02-12T12:47:57Z"^^XML:dateTime;
+#      n:content "Tuesday";
+#      n0:maker c:i.
+
+
+
+##################### Chat Channel
+
+:ChatChannelShape EXTRA a { 
+  a          [ mee:LongChat ] ;
+  dc:author  .          + ;
+  dc:title   xsd:string ;
+  dc:created xsd:dateTime ;
+  ui:sharedPreferences . * ;  # It would be better to refer a shape that defines preferences
+  flow:participation . * ; # It would be better to refer a shape that defines participation
+} 
+
+################ Shared Preferences
+
+:SharedPreferencesShape {
+    solid:expandImagesInline xsd:boolean ? ;
+    solid:inlineImageHeightEms xsd:integer ? ;
+    solid:newestFirst xsd:boolean ?
+}
+
+################ Participation objects
+
+:ParticipationShape {
+    ical:dtstart               xsd:dateTime ;
+    flow:participant           . ;
+    solid:colorizeByAuthor     xsd:boolean ? ;
+    solid:expandImagesInline   xsd:boolean ? ;
+    solid:inlineImageHeightEms xsd:integer ? ;
+    solid:newestFirst          xsd:boolean ? ;
+    ui:backgroundColor         xsd:string /#[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]/ ?
+}
+
+:MessageShape {
+    terms:created xsd:dateTime ;
+    foaf:maker    . ;
+    sioc:content  xsd:string ;
+    ^flow:message . ;
+}
+
+########## Actions express sentiments
+
+:ActionShape {
+  rdf:type     . ; # object Must be subclass of schema:Action 
+  schema:agent . ?
+}
