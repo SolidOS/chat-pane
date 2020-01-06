@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', function () {
   // Set up the view for the subject indicated in the fragment of the window's URL
   const uri = decodeURIComponent(window.location.hash.substr(1))
   if (uri.length === 0) {
-    window.location = '?#' + encodeURIComponent('https://michielbdejong.inrupt.net/meetings/Data%20browser%2016%20Dec%202019/Chat/chat.ttl#this')
+    window.location = '?#' + encodeURIComponent('https://w3c-cg.solid.community/public/w3c-cg-chat/index.ttl#this')
   }
   appendChatPane(document, uri)
 })
