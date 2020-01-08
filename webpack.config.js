@@ -28,28 +28,13 @@ module.exports = [{
 },
 {
   mode: 'development',
-  entry: './src/shortChatPane.js',
+  entry: {
+    shortChatPane: './src/shortChatPane.js',
+    longChatPane: './src/longChatPane.js'
+  },
   output: {
     path: path.resolve(__dirname, 'dist'),
-    filename: 'shortChatPane.js'
-  },
-  externals: {
-    fs: 'null',
-    'node-fetch': 'fetch',
-    'isomorphic-fetch': 'fetch',
-    xmldom: 'window',
-    'text-encoding': 'TextEncoder',
-    'whatwg-url': 'window',
-    '@trust/webcrypto': 'crypto'
-  },
-  devtool: 'source-map'
-},
-{
-  mode: 'development',
-  entry: './src/longChatPane.js',
-  output: {
-    path: path.resolve(__dirname, 'dist'),
-    filename: 'longChatPane.js'
+    filename: '[name].js'
   },
   externals: {
     fs: 'null',
