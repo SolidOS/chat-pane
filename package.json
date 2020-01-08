@@ -2,13 +2,16 @@
   "name": "chat-pane",
   "version": "2.0.0",
   "description": "Solid-compatible Panes: Chat",
-  "main": "./index.js",
+  "main": "./dist/longChatPane.js",
   "scripts": {
     "lint": "eslint '*.js'",
     "lint-fix": "eslint '*.js' --fix",
     "test": "npm run lint",
     "prepublishOnly": "npm test",
-    "postpublish": "git push origin master --follow-tags"
+    "postpublish": "git push origin master --follow-tags",
+    "watch": "webpack --watch",
+    "start": "webpack-dev-server --open",
+    "build": "webpack"
   },
   "repository": {
     "type": "git",
@@ -39,9 +42,13 @@
   },
   "devDependencies": {
     "eslint": "^6.6.0",
+    "html-webpack-plugin": "^3.2.0",
     "husky": "^3.0.8",
     "lint-staged": "^10.0.0-0",
-    "standard": "^14.3.1"
+    "standard": "^14.3.1",
+    "webpack": "^4.41.4",
+    "webpack-cli": "^3.3.10",
+    "webpack-dev-server": "^3.10.1"
   },
   "husky": {
     "hooks": {

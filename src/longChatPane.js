@@ -2,10 +2,11 @@
  **
  **  A long chat consists a of a series of chat files saved by date.
  */
-/* global alert, $rdf */
 
 const UI = require('solid-ui')
 const ns = UI.ns
+const $rdf = require('rdflib')
+
 const mainClass = ns.meeting('LongChat') // @@ something from SIOC?
 
 // const menuIcon = 'noun_897914.svg'
