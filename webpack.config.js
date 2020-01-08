@@ -10,7 +10,7 @@ module.exports = [{
     filename: 'chat.bundle.js'
   },
   plugins: [
-    new HtmlWebpackPlugin({ template: './index.html' })
+    new HtmlWebpackPlugin({ template: './src/index.html' })
   ],
   externals: {
     fs: 'null',
