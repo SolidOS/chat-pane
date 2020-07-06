@@ -3,11 +3,15 @@
   "version": "2.1.0",
   "description": "Solid-compatible Panes: Chat",
   "main": "./dist/longChatPane.js",
+  "files": [
+    "src",
+    "dist"
+  ],
   "scripts": {
     "lint": "eslint '*.js'",
     "lint-fix": "eslint '*.js' --fix",
     "test": "npm run lint",
-    "prepublishOnly": "npm test",
+    "prepublishOnly": "npm test && npm run build",
     "postpublish": "git push origin master --follow-tags",
     "watch": "webpack --watch",
     "start": "webpack-dev-server --open",
