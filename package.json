@@ -42,7 +42,7 @@
   },
   "homepage": "https://github.com/solid/chat-pane",
   "dependencies": {
-    "solid-ui": "^2.1.1"
+    "solid-ui": "^2.2.0"
   },
   "devDependencies": {
     "eslint": "^7.5.0",
