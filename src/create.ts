@@ -70,19 +70,19 @@ async function setAcl(chatLocation, me, invitee) {
   const aclBody = `
 @prefix acl: <http://www.w3.org/ns/auth/acl#>.
 <#owner>
-a acl:Authorization;
-acl:agent <${me.value}>;
-acl:accessTo <.>;
-acl:default <.>;
-acl:mode
-acl:Read, acl:Write, acl:Control.
+    a acl:Authorization;
+    acl:agent <${me.value}>;
+    acl:accessTo <.>;
+    acl:default <.>;
+    acl:mode
+        acl:Read, acl:Write, acl:Control.
 <#invitee>
-a acl:Authorization;
-acl:agent <${invitee.value}>;
-acl:accessTo <.>;
-acl:default <.>;
-acl:mode
-acl:Append.
+    a acl:Authorization;
+    acl:agent <${invitee.value}>;
+    acl:accessTo <.>;
+    acl:default <.>;
+    acl:mode
+        acl:Read, acl:Append.
 `
   const aclResponse = await store.fetcher.webOperation('PUT', chatAclDoc.value, {
     data: aclBody,
