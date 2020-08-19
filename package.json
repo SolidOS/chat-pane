@@ -2,7 +2,7 @@
   "name": "chat-pane",
   "version": "2.3.2",
   "description": "Solid-compatible Panes: Chat",
-  "main": "./src/main.js",
+  "main": "./lib/main.js",
   "files": [
     "src",
     "dist"

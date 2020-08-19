@@ -1,5 +1,5 @@
 import { authn, store, ns, widgets } from 'solid-ui'
-import { NamedNode } from 'rdflib'
+import { NamedNode, st } from 'rdflib'
 import longChatPane from './longChatPane'
 
 async function getMe () {
@@ -7,7 +7,8 @@ async function getMe () {
   if (me === null) {
     throw new Error('Current user not found! Not logged in?')
   }
-  await store.fetcher.load(me)
+  await store.fetcher.load(me.doc())
+  return me
 }
 
 async function getPodRoot (me): Promise<NamedNode> {
@@ -18,23 +19,22 @@ async function getPodRoot (me): Promise<NamedNode> {
   return podRoot
 }
 
-async function sendInvite (invitee: NamedNode, chatDoc: NamedNode) {
+async function sendInvite (invitee: NamedNode, chatThing: NamedNode) {
+  await store.fetcher.load(invitee.doc())
   const inviteeInbox = store.any(invitee, ns.ldp('inbox'), undefined, invitee.doc())
   if (!inviteeInbox) {
     throw new Error(`Invitee inbox not found! ${invitee.value}`)
   }
   const inviteBody = `
 <> a <http://www.w3.org/ns/pim/meeting#LongChatInvite> ;
-${ns.rdf('seeAlso')} <${chatDoc.value}> . 
+${ns.rdf('seeAlso')} <${chatThing.value}> . 
   `
   
-  const inviteResponse = await fetch(inviteeInbox.value, {
-    method: 'POST',
-    body: inviteBody,
-    headers: {
-      'Content-Type': 'text/turtle'
-    }
+  const inviteResponse = await store.fetcher.webOperation('POST', inviteeInbox.value, {
+    data: inviteBody,
+    contentType: 'text/turtle'
   })
+  console.log("webOperation response", inviteResponse)
   const locationStr = inviteResponse.headers.get('location')
   if (locationStr) {
     console.log('Invite sent', new URL(locationStr, inviteeInbox.value).toString())
@@ -44,19 +44,27 @@ ${ns.rdf('seeAlso')} <${chatDoc.value}> .
 
 }
 
-async function createChatLocation (invitee, podRoot) {
+function createChatLocation (invitee, podRoot) {
   // Create chat
   // See https://gitter.im/solid/chat-app?at=5f3c800f855be416a23ae74a
   const chatLocationStr = new URL(`IndividualChats/${new URL(invitee.value).host}/`, podRoot.value).toString()
   return new NamedNode(chatLocationStr)
 }
 
-async function createChatThing (chatLocation, me, context) {
-  const created = await longChatPane.mintNew(context, { me, newBase: chatLocation.value })
+async function createChatThing (chatLocation, me) {
+  const created = await longChatPane.mintNew({
+    session: {
+      store
+    }
+  },
+  {
+    me,
+    newBase: chatLocation.value
+  })
   return created.newInstance
 }
 
-async function setAcl(chatLocation) {
+async function setAcl(chatLocation, me, invitee) {
   console.log('Finding ACL for', chatLocation)
   await store.fetcher.load(chatLocation)
   // FIXME: check the Why value on this quad:
@@ -77,18 +85,15 @@ acl:mode
 acl:Read, acl:Write, acl:Control.
 <#invitee>
 a acl:Authorization;
-acl:agent <${subject.value}>;
+acl:agent <${invitee.value}>;
 acl:accessTo <.>;
 acl:default <.>;
 acl:mode
 acl:Append.
 `
-  const aclResponse = await fetch(chatAclDoc.value, {
-    method: 'PUT',
-    body: aclBody,
-    headers: {
-      'Content-Type': 'text/turtle'
-    }
+  const aclResponse = await store.fetcher.webOperation('PUT', chatAclDoc.value, {
+    data: aclBody,
+    contentType: 'text/turtle'
   })
   console.log('ACL created', chatAclDoc.value, aclResponse.status)
 }
@@ -116,13 +121,21 @@ async function addToPrivateTypeIndex(chatThing, me) {
   })
 }
 
-export async function createChat (invitee: NamedNode, context): Promise<NamedNode> {
+export async function createChat (invitee: NamedNode): Promise<NamedNode> {
+  console.log('getMe')
   const me = await getMe()
+  console.log('getPodRoot')
   const podRoot = await getPodRoot(me)
+  console.log('createChatLocation')
   const chatContainer = createChatLocation(invitee, podRoot)
-  const chatThing = await createChatThing(chatContainer, me, context)
+  console.log('createChatThing', chatContainer, me)
+  const chatThing = await createChatThing(chatContainer, me)
+  console.log('sendInvite', invitee, chatThing)
   await sendInvite(invitee, chatThing)
-  await setAcl(chatContainer)
+  console.log('setAcl')
+  await setAcl(chatContainer, me, invitee)
+  console.log('addToPrivateTypeIndex')
   await addToPrivateTypeIndex(chatThing, me)
+  console.log('done!')
   return chatThing
 }
