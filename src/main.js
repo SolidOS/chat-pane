@@ -1,4 +1,5 @@
 module.exports = {
   shortChatPane: require('./shortChatPane'),
-  longChatPane: require('./longChatPane')
+  longChatPane: require('./longChatPane'),
+  createChat: require('./create')
 }
