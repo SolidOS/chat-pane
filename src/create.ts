@@ -34,14 +34,10 @@ ${ns.rdf('seeAlso')} <${chatThing.value}> .
     data: inviteBody,
     contentType: 'text/turtle'
   })
-  console.log("webOperation response", inviteResponse)
   const locationStr = inviteResponse.headers.get('location')
-  if (locationStr) {
-    console.log('Invite sent', new URL(locationStr, inviteeInbox.value).toString())
-  } else {
-    console.log('Invite sending returned', inviteResponse.status)
+  if (!locationStr) {
+    throw new Error(`Invite sending returned a ${inviteResponse.status}`)
   }
-
 }
 
 function createChatLocation (invitee, podRoot) {
@@ -65,15 +61,12 @@ async function createChatThing (chatLocation, me) {
 }
 
 async function setAcl(chatLocation, me, invitee) {
-  console.log('Finding ACL for', chatLocation)
   await store.fetcher.load(chatLocation)
   // FIXME: check the Why value on this quad:
   const chatAclDoc = store.any(chatLocation, new NamedNode('http://www.iana.org/assignments/link-relations/acl'))
   if (!chatAclDoc) {
-    window.alert('Chat ACL doc not found!')
-    return
+    throw new Error('Chat ACL doc not found!')
   }
-  console.log('Setting ACl', chatLocation, chatAclDoc)
   const aclBody = `
 @prefix acl: <http://www.w3.org/ns/auth/acl#>.
 <#owner>
@@ -95,7 +88,6 @@ acl:Append.
     data: aclBody,
     contentType: 'text/turtle'
   })
-  console.log('ACL created', chatAclDoc.value, aclResponse.status)
 }
 async function addToPrivateTypeIndex(chatThing, me) {
   // Add to private type index
@@ -122,20 +114,12 @@ async function addToPrivateTypeIndex(chatThing, me) {
 }
 
 export async function createChat (invitee: NamedNode): Promise<NamedNode> {
-  console.log('getMe')
   const me = await getMe()
-  console.log('getPodRoot')
   const podRoot = await getPodRoot(me)
-  console.log('createChatLocation')
   const chatContainer = createChatLocation(invitee, podRoot)
-  console.log('createChatThing', chatContainer, me)
   const chatThing = await createChatThing(chatContainer, me)
-  console.log('sendInvite', invitee, chatThing)
   await sendInvite(invitee, chatThing)
-  console.log('setAcl')
   await setAcl(chatContainer, me, invitee)
-  console.log('addToPrivateTypeIndex')
   await addToPrivateTypeIndex(chatThing, me)
-  console.log('done!')
   return chatThing
 }
