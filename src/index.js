@@ -4,7 +4,16 @@ const ChatPane = require('./longChatPane.js')
 const $rdf = require('rdflib')
 const UI = require('solid-ui')
 const SolidAuth = require('solid-auth-client')
+const { createChat } = require('./create.ts')
 
+const menuDiv = document.createElement('div')
+
+async function renderMenuDiv () {
+  console.log('get invites list')
+  menuDiv.innerHTML = await getInvitesList()
+  console.log('get chats list')
+  menuDiv.innerHTML += await getChatsList()
+}
 // FIXME:
 window.$rdf = $rdf
 window.followLink = async function (from, follow, multiple) {
@@ -32,20 +41,11 @@ async function getChatsList () {
 </ul>`
 }
 
-window.sendInvite = async function () {
-  const invitee = document.getElementById('invitee').value
-  const inviteeInbox = await window.followLink(invitee, UI.ns.ldp('inbox'))
-  const body = `
-<> a <http://www.w3.org/ns/pim/meeting#LongChatInvite> ;
-  ${UI.ns.rdf('seeAlso')} <${decodeURIComponent(window.location.hash.substr(1))}> .
-`
-  fetch(inviteeInbox, {
-    method: 'POST',
-    body,
-    headers: {
-      'Content-Type': 'text/turtle'
-    }
-  })
+window.inviteSomeone = async function () {
+  const invitee = UI.store.namedNode(document.getElementById('invitee').value)
+  const created = await createChat(invitee)
+  console.log(created)
+  renderMenuDiv()
 }
 
 async function getInvitesList () {
@@ -71,7 +71,7 @@ async function getInvitesList () {
   <ul>
     ${invites.map(toLi)}
   </ul>
-  <input id="invitee"><button onclick="sendInvite()">Send Invite</button>`
+  Invite someone: <input id="invitee"><button onclick="inviteSomeone()">Send Invite</button>`
 }
 
 async function appendChatPane (dom, uri) {
@@ -88,30 +88,19 @@ async function appendChatPane (dom, uri) {
     }
   }
   const options = {}
-
-  const menuDiv = document.createElement('div')
-  console.log('waiting 2 seconds')
-  await (new Promise(resolve => setTimeout(resolve, 2000)))
-  console.log('waited 2 seconds')
-  menuDiv.innerHTML = await getInvitesList()
-  menuDiv.innerHTML += await getChatsList()
+  renderMenuDiv()
   dom.body.appendChild(menuDiv)
+  console.log('chat', subject)
   const paneDiv = ChatPane.render(subject, context, options)
   dom.body.appendChild(paneDiv)
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-  // Set up the view for the subject indicated in the fragment of the window's URL
-  const uri = decodeURIComponent(window.location.hash.substr(1))
-  if (uri.length === 0) {
-    window.location = '?#' + encodeURIComponent('https://solidos.solid.community/Team/SolidOs%20team%20chat/index.ttl#this')
-  }
-  appendChatPane(document, uri)
 })
 
 window.onload = () => {
   console.log('document ready')
-  SolidAuth.trackSession(session => {
+  SolidAuth.trackSession(async session => {
     if (!session) {
       console.log('The user is not logged in')
       document.getElementById('loginBanner').innerHTML = '<button onclick="popupLogin()">Log in</button>'
@@ -119,6 +108,12 @@ window.onload = () => {
       console.log(`Logged in as ${session.webId}`)
 
       document.getElementById('loginBanner').innerHTML = `Logged in as ${session.webId} <button onclick="logout()">Log out</button>`
+      // Set up the view for the subject indicated in the fragment of the window's URL
+      const uri = decodeURIComponent(window.location.hash.substr(1))
+      if (uri.length === 0) {
+        window.location = '?#' + encodeURIComponent('https://solidos.solid.community/Team/SolidOs%20team%20chat/index.ttl#this')
+      }
+      appendChatPane(document, uri)
     }
   })
 }

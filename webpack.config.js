@@ -12,6 +12,20 @@ module.exports = [{
   plugins: [
     new HtmlWebpackPlugin({ template: './src/index.html' })
   ],
+  resolve: {
+    extensions: ['.mjs', '.js', '.ts']
+  },
+  module: {
+    rules: [
+      {
+        test: /\.(mjs|js|ts)$/,
+        exclude: /(node_modules|bower_components)/,
+        use: {
+          loader: 'babel-loader'
+        }
+      }
+    ]
+  },
   externals: {
     fs: 'null',
     'node-fetch': 'fetch',
