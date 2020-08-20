@@ -124,20 +124,18 @@ export async function findChat (invitee: NamedNode) {
   const chatContainer = determineChatContainer(invitee, podRoot)
   let exists = true
   try {
-    await store.fetcher.load(chatContainer)
+    await store.fetcher.load(new NamedNode(chatContainer.value + CHAT_LOCATION_IN_CONTAINER))
   } catch (e) {
     exists = false
   }
   return { me, chatContainer, exists}
 }
 
-export async function getChat (invitee: NamedNode, createIfMissing: true): Promise<NamedNode> {
+export async function getChat (invitee: NamedNode, createIfMissing = true): Promise<NamedNode> {
   const { me, chatContainer, exists } = await findChat (invitee)
   if (exists) {
-    console.log('exists', chatContainer.value, CHAT_LOCATION_IN_CONTAINER)
     return new NamedNode(chatContainer.value + CHAT_LOCATION_IN_CONTAINER)
   }
-  console.log('createIfMissing', createIfMissing)
 
   if (createIfMissing) {
     const chatThing = await createChatThing(chatContainer, me)
