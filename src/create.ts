@@ -1,6 +1,6 @@
 import { authn, store, ns, widgets } from 'solid-ui'
 import { NamedNode, st } from 'rdflib'
-import longChatPane from './longChatPane'
+import longChatPane, { CHAT_LOCATION_IN_CONTAINER } from './longChatPane'
 
 async function getMe () {
   const me = authn.currentUser()
@@ -40,14 +40,14 @@ ${ns.rdf('seeAlso')} <${chatThing.value}> .
   }
 }
 
-function createChatLocation (invitee, podRoot) {
+function determineChatContainer (invitee, podRoot) {
   // Create chat
   // See https://gitter.im/solid/chat-app?at=5f3c800f855be416a23ae74a
-  const chatLocationStr = new URL(`IndividualChats/${new URL(invitee.value).host}/`, podRoot.value).toString()
-  return new NamedNode(chatLocationStr)
+  const chatContainerStr = new URL(`IndividualChats/${new URL(invitee.value).host}/`, podRoot.value).toString()
+  return new NamedNode(chatContainerStr)
 }
 
-async function createChatThing (chatLocation, me) {
+async function createChatThing (chatContainer, me) {
   const created = await longChatPane.mintNew({
     session: {
       store
@@ -55,18 +55,23 @@ async function createChatThing (chatLocation, me) {
   },
   {
     me,
-    newBase: chatLocation.value
+    newBase: chatContainer.value
   })
   return created.newInstance
 }
 
-async function setAcl(chatLocation, me, invitee) {
-  await store.fetcher.load(chatLocation)
+async function setAcl(chatContainer, me, invitee) {
+  // Some servers don't present a Link http response header
+  // if the container doesn't exist yet, so refetch the container
+  // now that it has been created:
+  await store.fetcher.load(chatContainer)
+
   // FIXME: check the Why value on this quad:
-  const chatAclDoc = store.any(chatLocation, new NamedNode('http://www.iana.org/assignments/link-relations/acl'))
+  const chatAclDoc = store.any(chatContainer, new NamedNode('http://www.iana.org/assignments/link-relations/acl'))
   if (!chatAclDoc) {
     throw new Error('Chat ACL doc not found!')
   }
+
   const aclBody = `
 @prefix acl: <http://www.w3.org/ns/auth/acl#>.
 <#owner>
@@ -113,13 +118,29 @@ async function addToPrivateTypeIndex(chatThing, me) {
   })
 }
 
-export async function createChat (invitee: NamedNode): Promise<NamedNode> {
+export async function findChat (invitee: NamedNode) {
   const me = await getMe()
   const podRoot = await getPodRoot(me)
-  const chatContainer = createChatLocation(invitee, podRoot)
-  const chatThing = await createChatThing(chatContainer, me)
-  await sendInvite(invitee, chatThing)
-  await setAcl(chatContainer, me, invitee)
-  await addToPrivateTypeIndex(chatThing, me)
-  return chatThing
+  const chatContainer = determineChatContainer(invitee, podRoot)
+  let exists = true
+  try {
+    await store.fetcher.load(chatContainer)
+  } catch (e) {
+    exists = false
+  }
+  return { me, chatContainer, exists}
+}
+
+export async function getChat (invitee: NamedNode, createIfMissing: true): Promise<NamedNode> {
+  const { me, chatContainer, exists } = await findChat (invitee)
+  if (exists) {
+    return new NamedNode(chatContainer.value + CHAT_LOCATION_IN_CONTAINER)
+  }
+  if (createIfMissing) {
+    const chatThing = await createChatThing(chatContainer, me)
+    await sendInvite(invitee, chatThing)
+    await setAcl(chatContainer, me, invitee)
+    await addToPrivateTypeIndex(chatThing, me)
+    return chatThing
+  }
 }

@@ -9,10 +9,14 @@ const $rdf = require('rdflib')
 
 const mainClass = ns.meeting('LongChat') // @@ something from SIOC?
 
+const CHAT_LOCATION_IN_CONTAINER = 'index.ttl#this'
+
 // const menuIcon = 'noun_897914.svg'
 const SPANNER_ICON = 'noun_344563.svg'
 
 module.exports = {
+  CHAT_LOCATION_IN_CONTAINER,
+
   // noun_704.svg Canoe   noun_346319.svg = 1 Chat  noun_1689339.svg = three chat
   icon: UI.icons.iconBase + 'noun_1689339.svg',
 
@@ -44,7 +48,7 @@ module.exports = {
 
     var newInstance = (newPaneOptions.newInstance =
       newPaneOptions.newInstance ||
-      kb.sym(newPaneOptions.newBase + 'index.ttl#this'))
+      kb.sym(newPaneOptions.newBase + CHAT_LOCATION_IN_CONTAINER))
     var newChatDoc = newInstance.doc()
 
     kb.add(newInstance, ns.rdf('type'), ns.meeting('LongChat'), newChatDoc)

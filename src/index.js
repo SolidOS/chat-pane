@@ -4,7 +4,7 @@ const ChatPane = require('./longChatPane.js')
 const $rdf = require('rdflib')
 const UI = require('solid-ui')
 const SolidAuth = require('solid-auth-client')
-const { createChat } = require('./create.ts')
+const { getChat } = require('./create.ts')
 
 const menuDiv = document.createElement('div')
 
@@ -43,7 +43,7 @@ async function getChatsList () {
 
 window.inviteSomeone = async function () {
   const invitee = UI.store.namedNode(document.getElementById('invitee').value)
-  const created = await createChat(invitee)
+  const created = await getChat(invitee)
   console.log(created)
   renderMenuDiv()
 }
