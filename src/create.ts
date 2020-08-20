@@ -134,8 +134,11 @@ export async function findChat (invitee: NamedNode) {
 export async function getChat (invitee: NamedNode, createIfMissing: true): Promise<NamedNode> {
   const { me, chatContainer, exists } = await findChat (invitee)
   if (exists) {
+    console.log('exists', chatContainer.value, CHAT_LOCATION_IN_CONTAINER)
     return new NamedNode(chatContainer.value + CHAT_LOCATION_IN_CONTAINER)
   }
+  console.log('createIfMissing', createIfMissing)
+
   if (createIfMissing) {
     const chatThing = await createChatThing(chatContainer, me)
     await sendInvite(invitee, chatThing)
