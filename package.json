@@ -5,13 +5,14 @@
   "main": "./lib/main.js",
   "files": [
     "src",
+    "lib",
     "dist"
   ],
   "scripts": {
     "lint": "eslint '*.js'",
     "lint-fix": "eslint '*.js' --fix",
     "test": "npm run lint",
-    "prepublishOnly": "npm test && npm run build",
+    "prepublishOnly": "npm test && npm run build && npm run build-lib",
     "postpublish": "git push origin master --follow-tags",
     "watch": "webpack --watch",
     "start": "webpack-dev-server --open",
