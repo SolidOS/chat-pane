@@ -14,6 +14,9 @@ const CHAT_LOCATION_IN_CONTAINER = 'index.ttl#this'
 // const menuIcon = 'noun_897914.svg'
 const SPANNER_ICON = 'noun_344563.svg'
 
+const SIDEBAR_STYLE = UI.style.sideBarStyle || 'border-radius: 1em; border: 0.1em solid purple; padding: 0.5em; margin-right: 1em;' +
+' resize: horizontal; overflow:scroll; min-width: 20em;'
+
 module.exports = {
   CHAT_LOCATION_IN_CONTAINER,
 
@@ -128,74 +131,139 @@ module.exports = {
       .statementsMatching(null, ns.ui.property, null, preferencesFormDoc)
       .map(st => st.object)
 
-    //          Settings Menu
+    //          Preferences Menu
     //
     // Build a menu a the side (@@ reactive: on top?)
-    var menuArea
-    async function menuHandler (_event) {
-      if (!menuArea) {
-        // Expand
-        menuArea = paneRight.appendChild(dom.createElement('div'))
-        // @@ style below fix .. just make it onviious while testing
-        menuArea.style =
-          'border-radius: 1em; border: 0.1em solid purple; padding: 0.5em; margin-left: 1em;' +
-          'resize: horizontal; overflow:scroll; min-width: 25em;'
-        menuArea.style.maxHeight = triptychHeight
-        const menuTable = menuArea.appendChild(dom.createElement('table'))
-        const registrationArea = menuTable.appendChild(dom.createElement('tr'))
-        const statusArea = menuTable.appendChild(dom.createElement('tr'))
 
-        var me = UI.authn.currentUser()
-        if (me) {
-          await UI.authn.registrationControl(
-            {
-              noun: 'chat room',
-              me: me,
-              statusArea: statusArea,
-              div: registrationArea,
-              dom: dom
-            },
+    async function renderPreferencesSidebar (context) {
+      // const noun = 'chat room'
+      const { dom, noun } = context
+      const preferencesArea = dom.createElement('div')
+      preferencesArea.appendChild(panelCloseButton(preferencesArea))
+      // @@ style below fix .. just make it onviious while testing
+      preferencesArea.style = SIDEBAR_STYLE
+      preferencesArea.style.minWidth = '25em' // bit bigger
+      preferencesArea.style.maxHeight = triptychHeight
+      const menuTable = preferencesArea.appendChild(dom.createElement('table'))
+      const registrationArea = menuTable.appendChild(dom.createElement('tr'))
+      const statusArea = menuTable.appendChild(dom.createElement('tr'))
+
+      var me = UI.authn.currentUser()
+      if (me) {
+        await UI.authn.registrationControl(
+          { noun, me, statusArea, dom, div: registrationArea },
+          chatChannel,
+          mainClass
+        )
+        console.log('Registration control finsished.')
+        preferencesArea.appendChild(
+          UI.preferences.renderPreferencesForm(
             chatChannel,
-            mainClass
+            mainClass,
+            preferencesForm,
+            {
+              noun,
+              me,
+              statusArea,
+              div: preferencesArea,
+              dom,
+              kb
+            }
           )
-          console.log('Registration control finsished.')
-          menuArea.appendChild(
-            UI.preferences.renderPreferencesForm(
-              chatChannel,
-              mainClass,
-              preferencesForm,
-              {
-                noun: 'chat room',
-                me: me,
-                statusArea: statusArea,
-                div: menuArea,
-                dom,
-                kb
-              }
-            )
-          )
-        }
-      } else {
-        // Close menu  (hide or delete??)
-        menuArea.parentNode.removeChild(menuArea)
-        menuArea = null
+        )
       }
-    } // menuHandler
+      return preferencesArea
+    }
 
-    //          People
+    // @@ Split out into solid-ui
+
+    function panelCloseButton (panel) {
+      function removePanel () {
+        panel.parentNode.removeChild(panel)
+      }
+      const button =
+        UI.widgets.button(context.dom, UI.icons.iconBase + 'noun_1180156.svg', 'close', removePanel)
+      button.style.float = 'right'
+      button.style.margin = '0.7em'
+      delete button.style.backgroundColor // do not want white
+      return button
+    }
+    async function preferencesButtonPressed (_event) {
+      if (!preferencesArea) {
+        // Expand
+        preferencesArea = await renderPreferencesSidebar({ dom, noun: 'chat room' })
+      }
+      if (paneRight.contains(preferencesArea)) {
+        // Close menu  (hide or delete??)
+        preferencesArea.parentNode.removeChild(preferencesArea)
+        preferencesArea = null
+      } else {
+        paneRight.appendChild(preferencesArea)
+      }
+    } // preferencesButtonPressed
+
+    //          All my chats
     //
-    /* Build a particpants a the side
-     * (@@ reactive: on top?)
+    /* Build a other chats list drawer the side
+     */
+
+    function renderCreationControl (refreshTarget, noun) {
+      var creationDiv = dom.createElement('div')
+      var me = UI.authn.currentUser()
+      var creationContext = {
+        // folder: subject,
+        div: creationDiv,
+        dom: dom,
+        noun: noun,
+        statusArea: creationDiv,
+        me: me,
+        refreshTarget: refreshTarget
+      }
+      const issuePane = context.session.paneRegistry.byName('issue')
+      const relevantPanes = [issuePane]
+      UI.create.newThingUI(creationContext, context, relevantPanes) // Have to pass panes down  newUI
+      return creationDiv
+    }
+
+    async function renderInstances (theClass, noun) {
+      const instancesDiv = dom.createElement('div')
+      var context = { dom, div: instancesDiv, noun: noun }
+      await UI.authn.registrationList(context, { public: true, private: true, type: theClass })
+      instancesDiv.appendChild(renderCreationControl(instancesDiv, noun))
+      return instancesDiv
+    }
+
+    var otherChatsArea = null
+    async function otherChatsHandler (_event) {
+      if (!otherChatsArea) { // Lazy build when needed
+        // Expand
+        otherChatsArea = dom.createElement('div')
+        otherChatsArea.style = SIDEBAR_STYLE
+        otherChatsArea.style.maxHeight = triptychHeight
+        otherChatsArea.appendChild(panelCloseButton(otherChatsArea))
+
+        otherChatsArea.appendChild(await renderInstances(ns.meeting('LongChat'), 'chat'))
+      }
+      // Toggle visibility with button clicks
+      if (paneLeft.contains(otherChatsArea)) {
+        otherChatsArea.parentNode.removeChild(otherChatsArea)
+      } else {
+        paneLeft.appendChild(otherChatsArea)
+      }
+    } // otherChatsHandler
+
+    //          People in the chat
+    //
+    /* Build a participants list drawer the side
      */
     var participantsArea
-    function particpantsHandler (_event) {
+    function participantsHandler (_event) {
       if (!participantsArea) {
         // Expand
-        participantsArea = paneLeft.appendChild(dom.createElement('div'))
-        participantsArea.style =
-          'border-radius: 1em; border: 0.1em solid purple; padding: 0.5em; margin-right: 1em;' +
-          ' resize: horizontal; overflow:scroll; min-width: 20em;'
+        participantsArea = dom.createElement('div')
+        participantsArea.style = SIDEBAR_STYLE
         participantsArea.style.maxHeight = triptychHeight
+        participantsArea.appendChild(panelCloseButton(participantsArea))
 
         // Record my participation and display participants
         var me = UI.authn.currentUser()
@@ -208,12 +276,17 @@ module.exports = {
           me,
           {}
         )
-      } else {
-        // Close particpants  (hide or delete??)
+      }
+      // Toggle appearance in sidebar with clicks
+      // Note also it can remove itself using the X button
+      if (paneLeft.contains(participantsArea)) {
+        // Close participants  (hide or delete??)
         participantsArea.parentNode.removeChild(participantsArea)
         participantsArea = null
+      } else {
+        paneLeft.appendChild(participantsArea)
       }
-    } // particpantsHandler
+    } // participantsHandler
 
     var chatChannel = subject
     var selectedMessage = null
@@ -234,8 +307,9 @@ module.exports = {
 
     var div = dom.createElement('div')
 
-    // Three large colons for particpant, chat, settings
-    const triptychHeight = '30cm' // @@ need to be able to set to  window!
+    // Three large columns for particpant, chat, Preferences
+    var windowHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight
+    const triptychHeight = '20cm' // @@ need to be able to set to  window!
     var triptych = div.appendChild(dom.createElement('table'))
     triptych.style.maxHeight = '12"' // Screen max
     var paneRow = triptych.appendChild(dom.createElement('tr'))
@@ -248,27 +322,38 @@ module.exports = {
     const buttonCell = paneBottom.appendChild(dom.createElement('td'))
     paneBottom.appendChild(dom.createElement('td'))
 
-    // Button to bring up particpants drawer on left
-    const particpantsIcon = 'noun_339237.svg'
-    var particpantsButton = UI.widgets.button(
+    // Button to bring up participants drawer on left
+    const participantsIcon = 'noun_339237.svg'
+    var participantsButton = UI.widgets.button(
       dom,
-      UI.icons.iconBase + particpantsIcon,
-      'particpants ...'
+      UI.icons.iconBase + participantsIcon,
+      'participants ...'
     ) // wider var
-    buttonCell.appendChild(particpantsButton)
-    particpantsButton.addEventListener('click', particpantsHandler)
+    buttonCell.appendChild(participantsButton)
+    participantsButton.addEventListener('click', participantsHandler)
 
-    var menuButton = UI.widgets.button(
+    // Button to bring up otherChats drawer on left
+    const otherChatsIcon = 'noun_1689339.svg' // long chat icon -- not ideal for a set of chats @@
+    var otherChatsButton = UI.widgets.button(
+      dom,
+      UI.icons.iconBase + otherChatsIcon,
+      'List of other chats ...'
+    ) // wider var
+    buttonCell.appendChild(otherChatsButton)
+    otherChatsButton.addEventListener('click', otherChatsHandler)
+
+    var preferencesArea = null
+    const menuButton = UI.widgets.button(
       dom,
       UI.icons.iconBase + SPANNER_ICON,
-      'Menu ...'
+      'Setting ...'
     ) // wider var
     buttonCell.appendChild(menuButton)
     menuButton.style.float = 'right'
-    menuButton.addEventListener('click', menuHandler)
+    menuButton.addEventListener('click', preferencesButtonPressed)
 
     div.setAttribute('class', 'chatPane')
-    const options = { infinite: true } //  was: menuHandler: menuHandler
+    const options = { infinite: true }
     const participantsHandlerContext = { noun: 'chat room', div, dom: dom }
     participantsHandlerContext.me = UI.authn.currentUser() // If already logged on
 
