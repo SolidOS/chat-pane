@@ -59,5 +59,13 @@ module.exports = [{
     'whatwg-url': 'window',
     '@trust/webcrypto': 'crypto'
   },
+  resolve: {
+    fallback: {
+      crypto: require.resolve('crypto-browserify'),
+      path: require.resolve('path-browserify'),
+      buffer: require.resolve('buffer/'),
+      stream: require.resolve('stream-browserify')
+    }
+  },
   devtool: 'source-map'
 }]
