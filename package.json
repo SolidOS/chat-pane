@@ -1,6 +1,6 @@
 {
   "name": "chat-pane",
-  "version": "2.4.2",
+  "version": "2.4.3",
   "description": "Solid-compatible Panes: Chat",
   "main": "./lib/main.js",
   "files": [
