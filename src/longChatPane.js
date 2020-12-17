@@ -13,9 +13,9 @@ const CHAT_LOCATION_IN_CONTAINER = 'index.ttl#this'
 
 // const menuIcon = 'noun_897914.svg'
 const SPANNER_ICON = 'noun_344563.svg'
-
-const SIDEBAR_STYLE = UI.style.sideBarStyle || 'border-radius: 1em; border: 0.1em solid purple; padding: 0.5em; margin-right: 1em;' +
-' resize: horizontal; overflow:scroll; min-width: 20em;'
+// resize: horizontal;  min-width: 20em;
+const SIDEBAR_COMPONENT_STYLE = UI.style.sidebarComponentStyle || ' padding: 0.5em; width: 100%;'
+const SIDEBAR_STYLE = UI.style.sidebarStyle || 'overflow-x: auto; overflow-y: auto; border-radius: 1em; border: 0.1em solid purple;'
 
 module.exports = {
   CHAT_LOCATION_IN_CONTAINER,
@@ -141,7 +141,7 @@ module.exports = {
       const preferencesArea = dom.createElement('div')
       preferencesArea.appendChild(panelCloseButton(preferencesArea))
       // @@ style below fix .. just make it onviious while testing
-      preferencesArea.style = SIDEBAR_STYLE
+      preferencesArea.style = SIDEBAR_COMPONENT_STYLE
       preferencesArea.style.minWidth = '25em' // bit bigger
       preferencesArea.style.maxHeight = triptychHeight
       const menuTable = preferencesArea.appendChild(dom.createElement('table'))
@@ -238,7 +238,7 @@ module.exports = {
       if (!otherChatsArea) { // Lazy build when needed
         // Expand
         otherChatsArea = dom.createElement('div')
-        otherChatsArea.style = SIDEBAR_STYLE
+        otherChatsArea.style = SIDEBAR_COMPONENT_STYLE
         otherChatsArea.style.maxHeight = triptychHeight
         otherChatsArea.appendChild(panelCloseButton(otherChatsArea))
 
@@ -261,7 +261,7 @@ module.exports = {
       if (!participantsArea) {
         // Expand
         participantsArea = dom.createElement('div')
-        participantsArea.style = SIDEBAR_STYLE
+        participantsArea.style = SIDEBAR_COMPONENT_STYLE
         participantsArea.style.maxHeight = triptychHeight
         participantsArea.appendChild(panelCloseButton(participantsArea))
 
@@ -307,8 +307,8 @@ module.exports = {
 
     var div = dom.createElement('div')
 
-    // Three large columns for particpant, chat, Preferences
-    var windowHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight
+    // Three large columns for particpant, chat, Preferences.  formula below just as a note
+    // const windowHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight
     const triptychHeight = '20cm' // @@ need to be able to set to  window!
     var triptych = div.appendChild(dom.createElement('table'))
     triptych.style.maxHeight = '12"' // Screen max
@@ -317,6 +317,10 @@ module.exports = {
     var paneMiddle = paneRow.appendChild(dom.createElement('td'))
     var paneRight = paneRow.appendChild(dom.createElement('td'))
     var paneBottom = triptych.appendChild(dom.createElement('tr'))
+    paneLeft.style = SIDEBAR_STYLE
+    paneLeft.style.paddingRight = '1em'
+    paneRight.style = SIDEBAR_STYLE
+    paneRight.style.paddingLeft = '1em'
 
     paneBottom.appendChild(dom.createElement('td'))
     const buttonCell = paneBottom.appendChild(dom.createElement('td'))
@@ -357,39 +361,36 @@ module.exports = {
     const participantsHandlerContext = { noun: 'chat room', div, dom: dom }
     participantsHandlerContext.me = UI.authn.currentUser() // If already logged on
 
-    UI.preferences
-      .getPreferencesForClass(
+    async function buildPane () {
+      let prefMap
+      try {
+        prefMap = await UI.preferences.getPreferencesForClass(
+          chatChannel, mainClass, preferenceProperties, participantsHandlerContext)
+      } catch (err) {
+        UI.widgets.complain(participantsHandlerContext, err)
+      }
+      for (const propuri in prefMap) {
+        options[propuri.split('#')[1]] = prefMap[propuri]
+      }
+      if (selectedMessage) {
+        options.selectedMessage = selectedMessage
+      }
+      if (paneOptions.solo) {
+        // This is the top pane, title, scrollbar etc are ours
+        options.solo = true
+      }
+      const chatControl = await UI.infiniteMessageArea(
+        dom,
+        kb,
         chatChannel,
-        mainClass,
-        preferenceProperties,
-        participantsHandlerContext
+        options
       )
-      .then(
-        prefMap => {
-          for (const propuri in prefMap) {
-            options[propuri.split('#')[1]] = prefMap[propuri]
-          }
-          if (selectedMessage) {
-            options.selectedMessage = selectedMessage
-          }
-          if (paneOptions.solo) {
-            // This is the top pane, title, scrollbar etc are ours
-            options.solo = true
-          }
-          const chatControl = UI.infiniteMessageArea(
-            dom,
-            kb,
-            chatChannel,
-            options
-          )
-          chatControl.style.resize = 'both'
-          chatControl.style.overflow = 'auto'
-          chatControl.style.maxHeight = triptychHeight
-          paneMiddle.appendChild(chatControl)
-        },
-        err => UI.widgets.complain(participantsHandlerContext, err)
-      )
-
+      chatControl.style.resize = 'both'
+      chatControl.style.overflow = 'auto'
+      chatControl.style.maxHeight = triptychHeight
+      paneMiddle.appendChild(chatControl)
+    }
+    buildPane().then(console.log('async - chat pane built'))
     return div
   }
 }
