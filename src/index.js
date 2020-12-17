@@ -111,7 +111,7 @@ window.onload = () => {
       // Set up the view for the subject indicated in the fragment of the window's URL
       const uri = decodeURIComponent(window.location.hash.substr(1))
       if (uri.length === 0) {
-        window.location = '?#' + encodeURIComponent('https://solidos.solid.community/Team/SolidOs%20team%20chat/index.ttl#this')
+        window.location = '?#' + encodeURIComponent('https://solidos.solidcommunity.net/Team/SolidOs%20team%20chat/index.ttl#this')
       }
       appendChatPane(document, uri)
     }
@@ -123,7 +123,7 @@ window.logout = () => {
 }
 window.popupLogin = async function () {
   let session = await SolidAuth.currentSession()
-  const popupUri = 'https://solid.community/common/popup.html'
+  const popupUri = 'https://solidcommunity.net/common/popup.html'
   if (!session) {
     session = await SolidAuth.popupLogin({ popupUri })
   }
