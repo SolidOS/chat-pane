@@ -15,8 +15,8 @@ const CHAT_LOCATION_IN_CONTAINER = 'index.ttl#this'
 const SPANNER_ICON = 'noun_344563.svg'
 // resize: horizontal;  min-width: 20em;
 const SIDEBAR_COMPONENT_STYLE = UI.style.sidebarComponentStyle || ' padding: 0.5em; width: 100%;'
-const SIDEBAR_STYLE = UI.style.sidebarStyle || 'overflow-x: auto; overflow-y: auto; border-radius: 1em; border: 0.1em solid purple;'
-
+const SIDEBAR_STYLE = UI.style.sidebarStyle || 'overflow-x: auto; overflow-y: auto; border-radius: 1em; border: 0.1em solid whte;'
+// was purple border
 module.exports = {
   CHAT_LOCATION_IN_CONTAINER,
 
@@ -219,8 +219,8 @@ module.exports = {
         me: me,
         refreshTarget: refreshTarget
       }
-      const issuePane = context.session.paneRegistry.byName('issue')
-      const relevantPanes = [issuePane]
+      const chatPane = context.session.paneRegistry.byName('chat')
+      const relevantPanes = [chatPane]
       UI.create.newThingUI(creationContext, context, relevantPanes) // Have to pass panes down  newUI
       return creationDiv
     }
