@@ -13,7 +13,7 @@
     "lint-fix": "eslint '*.js' --fix",
     "test": "npm run lint",
     "prepublishOnly": "npm test && npm run build && npm run build-lib",
-    "postpublish": "git push origin master --follow-tags",
+    "postpublish": "git push origin main --follow-tags",
     "watch": "webpack --watch",
     "start": "webpack-dev-server --open",
     "build": "webpack",
