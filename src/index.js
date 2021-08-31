@@ -100,13 +100,14 @@ document.addEventListener('DOMContentLoaded', function () {
 window.onload = () => {
   console.log('document ready')
   const onSessionChange = () => {
-    if (!UI.authn.authSession.info.isLoggedIn) {
+    const currentUser = UI.authn.currentUser()
+    if (!currentUser) {
       console.log('The user is not logged in')
       document.getElementById('loginBanner').innerHTML = '<button onclick="popupLogin()">Log in</button>'
     } else {
-      console.log(`Logged in as ${UI.authn.authSession.info.webId}`)
+      console.log(`Logged in as ${currentUser}`)
 
-      document.getElementById('loginBanner').innerHTML = `Logged in as ${UI.authn.authSession.info.webId} <button onclick="logout()">Log out</button>`
+      document.getElementById('loginBanner').innerHTML = `Logged in as ${currentUser} <button onclick="logout()">Log out</button>`
       // Set up the view for the subject indicated in the fragment of the window's URL
       const uri = decodeURIComponent(window.location.hash.substr(1))
       if (uri.length === 0) {
@@ -124,7 +125,7 @@ window.logout = () => {
   window.location = ''
 }
 window.popupLogin = async function () {
-  if (!UI.authn.authSession.info.isLoggedIn) {
+  if (!UI.authn.currentUser()) {
     UI.authn.renderSignInPopup(document)
   }
 }
