@@ -1,6 +1,6 @@
 {
   "name": "chat-pane",
-  "version": "2.4.11-alpha-d9bd19aa",
+  "version": "2.4.11-beta",
   "description": "Solid-compatible Panes: Chat",
   "main": "./lib/main.js",
   "files": [
@@ -47,7 +47,7 @@
     "buffer": "^6.0.3",
     "crypto-browserify": "^3.12.0",
     "path-browserify": "^1.0.1",
-    "solid-ui": "^2.4.9-alpha-d9bd19aa",
+    "solid-ui": "^2.4.9-beta",
     "stream-browserify": "^3.0.0"
   },
   "devDependencies": {
