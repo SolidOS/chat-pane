@@ -3,7 +3,6 @@
 const ChatPane = require('./longChatPane.js')
 const $rdf = require('rdflib')
 const UI = require('solid-ui')
-const SolidAuth = require('solid-auth-client')
 const { getChat } = require('./create.ts')
 
 const menuDiv = document.createElement('div')
@@ -100,14 +99,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
 window.onload = () => {
   console.log('document ready')
-  SolidAuth.trackSession(async session => {
-    if (!session) {
+  const onSessionChange = () => {
+    const currentUser = UI.authn.currentUser()
+    if (!currentUser) {
       console.log('The user is not logged in')
       document.getElementById('loginBanner').innerHTML = '<button onclick="popupLogin()">Log in</button>'
     } else {
-      console.log(`Logged in as ${session.webId}`)
+      console.log(`Logged in as ${currentUser}`)
 
-      document.getElementById('loginBanner').innerHTML = `Logged in as ${session.webId} <button onclick="logout()">Log out</button>`
+      document.getElementById('loginBanner').innerHTML = `Logged in as ${currentUser} <button onclick="logout()">Log out</button>`
       // Set up the view for the subject indicated in the fragment of the window's URL
       const uri = decodeURIComponent(window.location.hash.substr(1))
       if (uri.length === 0) {
@@ -115,16 +115,17 @@ window.onload = () => {
       }
       appendChatPane(document, uri)
     }
-  })
+  }
+  UI.authn.authSession.onLogin(() => onSessionChange())
+  UI.authn.authSession.onSessionRestore(() => onSessionChange())
+  onSessionChange()
 }
 window.logout = () => {
-  SolidAuth.logout()
+  UI.authn.authSession.logout()
   window.location = ''
 }
 window.popupLogin = async function () {
-  let session = await SolidAuth.currentSession()
-  const popupUri = 'https://solidcommunity.net/common/popup.html'
-  if (!session) {
-    session = await SolidAuth.popupLogin({ popupUri })
+  if (!UI.authn.currentUser()) {
+    UI.authn.renderSignInPopup(document)
   }
 }
