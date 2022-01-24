@@ -2,7 +2,7 @@
  **
  **  A long chat consists a of a series of chat files saved by date.
  */
-
+import { authn } from 'solid-logic'
 const UI = require('solid-ui')
 const ns = UI.ns
 const $rdf = require('rdflib')
@@ -148,9 +148,9 @@ module.exports = {
       const registrationArea = menuTable.appendChild(dom.createElement('tr'))
       const statusArea = menuTable.appendChild(dom.createElement('tr'))
 
-      var me = UI.authn.currentUser()
+      var me = authn.currentUser()
       if (me) {
-        await UI.authn.registrationControl(
+        await UI.login.registrationControl(
           { noun, me, statusArea, dom, div: registrationArea },
           chatChannel,
           mainClass
@@ -209,7 +209,7 @@ module.exports = {
 
     function renderCreationControl (refreshTarget, noun) {
       var creationDiv = dom.createElement('div')
-      var me = UI.authn.currentUser()
+      var me = authn.currentUser()
       var creationContext = {
         // folder: subject,
         div: creationDiv,
@@ -228,7 +228,7 @@ module.exports = {
     async function renderInstances (theClass, noun) {
       const instancesDiv = dom.createElement('div')
       var context = { dom, div: instancesDiv, noun: noun }
-      await UI.authn.registrationList(context, { public: true, private: true, type: theClass })
+      await UI.login.registrationList(context, { public: true, private: true, type: theClass })
       instancesDiv.appendChild(renderCreationControl(instancesDiv, noun))
       return instancesDiv
     }
@@ -266,7 +266,7 @@ module.exports = {
         participantsArea.appendChild(panelCloseButton(participantsArea))
 
         // Record my participation and display participants
-        var me = UI.authn.currentUser()
+        var me = authn.currentUser()
         if (!me) alert('Should be logeed in for partipants panel')
         UI.pad.manageParticipation(
           dom,
@@ -359,7 +359,7 @@ module.exports = {
     div.setAttribute('class', 'chatPane')
     const options = { infinite: true }
     const participantsHandlerContext = { noun: 'chat room', div, dom: dom }
-    participantsHandlerContext.me = UI.authn.currentUser() // If already logged on
+    participantsHandlerContext.me = authn.currentUser() // If already logged on
 
     async function buildPane () {
       let prefMap

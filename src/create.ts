@@ -1,4 +1,5 @@
-import { authn, store, ns, widgets } from 'solid-ui'
+import { ns, widgets } from 'solid-ui'
+import { authn, store } from 'solid-logic'
 import { NamedNode, st } from 'rdflib'
 import longChatPane, { CHAT_LOCATION_IN_CONTAINER } from './longChatPane'
 
