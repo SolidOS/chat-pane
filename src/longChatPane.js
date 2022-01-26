@@ -96,28 +96,34 @@ module.exports = {
     // const DCT = $rdf.Namespace('http://purl.org/dc/terms/')
 
     const preferencesFormText = `
+    @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+    @prefix solid: <http://www.w3.org/ns/solid/terms#>.
+    @prefix ui: <http://www.w3.org/ns/ui#>.
+    @prefix : <#>.
 
-  @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
-  @prefix solid: <http://www.w3.org/ns/solid/terms#>.
-  @prefix ui: <http://www.w3.org/ns/ui#>.
-  @prefix : <#>.
+    :this
+      <http://purl.org/dc/elements/1.1/title> "Chat preferences" ;
+      a ui:Form ;
+      ui:parts ( :colorizeByAuthor :expandImagesInline :newestFirst :inlineImageHeightEms
+                  :shiftEnterSendsMessage :authorDateOnLeft).
 
-  :this
-    <http://purl.org/dc/elements/1.1/title> "Chat preferences" ;
-    a ui:Form ;
-    ui:part :colorizeByAuthor, :expandImagesInline, :newestFirst, :inlineImageHeightEms;
-    ui:parts ( :colorizeByAuthor :expandImagesInline :newestFirst :inlineImageHeightEms ).
+    :colorizeByAuthor a ui:TristateField; ui:property solid:colorizeByAuthor;
+    ui:label "Color user input by user".
 
-:colorizeByAuthor a ui:TristateField; ui:property solid:colorizeByAuthor;
-  ui:label "Color user input by user".
-:expandImagesInline a ui:TristateField; ui:property solid:expandImagesInline;
-  ui:label "Expand image URLs inline".
-:newestFirst a ui:TristateField; ui:property solid:newestFirst;
-  ui:label "Newest messages at the top".
+    :expandImagesInline a ui:TristateField; ui:property solid:expandImagesInline;
+    ui:label "Expand image URLs inline".
 
-:inlineImageHeightEms a ui:IntegerField; ui:property solid:inlineImageHeightEms;
-  ui:label "Inline image height (lines)".
+    :newestFirst a ui:TristateField; ui:property solid:newestFirst;
+    ui:label "Newest messages at the top".
 
+    :inlineImageHeightEms a ui:IntegerField; ui:property solid:inlineImageHeightEms;
+    ui:label "Inline image height (lines)".
+
+    :shiftEnterSendsMessage a ui:TristateField; ui:property solid:shiftEnterSendsMessage;
+    ui:label "Shift/Enter sends message".
+
+    :authorDateOnLeft a ui:TristateField; ui:property solid:authorDateOnLeft;
+    ui:label "Author & date of message on left".
 `
     const preferencesForm = kb.sym(
       'https://solid.github.io/solid-panes/longCharPane/preferencesForm.ttl#this'
