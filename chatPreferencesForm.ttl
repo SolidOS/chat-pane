@@ -7,7 +7,7 @@
   <http://purl.org/dc/elements/1.1/title> "Chat preferences" ;
   a ui:Form ;
   ui:parts ( :colorizeByAuthor :expandImagesInline :newestFirst :inlineImageHeightEms
-              :shiftEnterSendsMessage :authorDateOnLeft).
+              :shiftEnterSendsMessage :authorDateOnLeft :showDeletedMessages).
 
 :colorizeByAuthor a ui:TristateField; ui:property solid:colorizeByAuthor;
 ui:label "Color user input by user".
@@ -26,3 +26,6 @@ ui:label "Shift/Enter sends message".
 
 :authorDateOnLeft a ui:TristateField; ui:property solid:authorDateOnLeft;
 ui:label "Author & date of message on left".
+
+:showDeletedMessages a ui:TristateField; ui:property solid:showDeletedMessages;
+ui:label "Show placeholders for deleted messages".

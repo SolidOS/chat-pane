@@ -94,7 +94,6 @@ module.exports = {
      ** for everyone to be seeing the same thing.
      */
     // const DCT = $rdf.Namespace('http://purl.org/dc/terms/')
-
     const preferencesFormText = `
     @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
     @prefix solid: <http://www.w3.org/ns/solid/terms#>.
@@ -105,7 +104,7 @@ module.exports = {
       <http://purl.org/dc/elements/1.1/title> "Chat preferences" ;
       a ui:Form ;
       ui:parts ( :colorizeByAuthor :expandImagesInline :newestFirst :inlineImageHeightEms
-                  :shiftEnterSendsMessage :authorDateOnLeft).
+                  :shiftEnterSendsMessage :authorDateOnLeft :showDeletedMessages).
 
     :colorizeByAuthor a ui:TristateField; ui:property solid:colorizeByAuthor;
     ui:label "Color user input by user".
@@ -124,6 +123,9 @@ module.exports = {
 
     :authorDateOnLeft a ui:TristateField; ui:property solid:authorDateOnLeft;
     ui:label "Author & date of message on left".
+
+    :showDeletedMessages a ui:TristateField; ui:property solid:showDeletedMessages;
+    ui:label "Show placeholders for deleted messages".
 `
     const preferencesForm = kb.sym(
       'https://solid.github.io/solid-panes/longCharPane/preferencesForm.ttl#this'
