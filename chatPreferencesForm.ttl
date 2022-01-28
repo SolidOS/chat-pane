@@ -22,7 +22,7 @@ ui:label "Newest messages at the top".
 ui:label "Inline image height (lines)".
 
 :shiftEnterSendsMessage a ui:TristateField; ui:property solid:shiftEnterSendsMessage;
-ui:label "Shift/Enter sends message".
+ui:label "Shift-Enter sends message".
 
 :authorDateOnLeft a ui:TristateField; ui:property solid:authorDateOnLeft;
 ui:label "Author & date of message on left".
