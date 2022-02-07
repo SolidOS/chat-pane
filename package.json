@@ -17,7 +17,7 @@
     "postpublish": "git push origin main --follow-tags",
     "watch": "webpack --watch",
     "start": "webpack-dev-server --open",
-    "build": "webpack && build-lib",
+    "build": "webpack && npm run build-lib",
     "build-lib": "babel src -d lib --source-maps --extensions '.ts,.js'"
   },
   "repository": {
