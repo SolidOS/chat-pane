@@ -12,11 +12,12 @@
     "lint": "eslint '*.js'",
     "lint-fix": "eslint '*.js' --fix",
     "test": "npm run lint",
+    "clean": "rm -rf lib && rm -rf dist",
     "prepublishOnly": "npm test && npm run build && npm run build-lib",
     "postpublish": "git push origin main --follow-tags",
     "watch": "webpack --watch",
     "start": "webpack-dev-server --open",
-    "build": "webpack",
+    "build": "webpack && npm run build-lib",
     "build-lib": "babel src -d lib --source-maps --extensions '.ts,.js'"
   },
   "repository": {
@@ -47,8 +48,8 @@
     "buffer": "^6.0.3",
     "crypto-browserify": "^3.12.0",
     "path-browserify": "^1.0.1",
-    "rdflib": "^2.2.17",
-    "solid-ui": "^2.4.16",
+    "solid-logic": "1.3.13-53806f5e",
+    "solid-ui": "2.4.18-270aef4c",
     "stream-browserify": "^3.0.0"
   },
   "devDependencies": {

@@ -1,5 +1,6 @@
 /* global SolidAuthClient */
 
+import { store, authn, authSession } from 'solid-logic'
 const ChatPane = require('./longChatPane.js')
 const $rdf = require('rdflib')
 const UI = require('solid-ui')
@@ -19,13 +20,13 @@ window.followLink = async function (from, follow, multiple) {
   const subject = $rdf.sym(from)
   const doc = subject.doc()
   await new Promise((resolve, reject) => {
-    UI.store.fetcher.load(doc).then(resolve, reject)
+    store.fetcher.load(doc).then(resolve, reject)
   })
   const predicate = $rdf.sym(follow)
   if (multiple) {
-    return UI.store.each(subject, predicate).map(n => n.value)
+    return store.each(subject, predicate).map(n => n.value)
   }
-  return UI.store.any(subject, predicate).value
+  return store.any(subject, predicate).value
 }
 
 function toLi (uri) {
@@ -33,7 +34,7 @@ function toLi (uri) {
 }
 
 async function getChatsList () {
-  const { instances } = await UI.authn.findAppInstances({}, $rdf.sym('http://www.w3.org/ns/pim/meeting#LongChat'))
+  const { instances } = await UI.login.findAppInstances({}, $rdf.sym('http://www.w3.org/ns/pim/meeting#LongChat'))
   return `<h2>Your chats:
 <ul>
   ${instances.map(n => n.value).map(toLi)}
@@ -41,7 +42,7 @@ async function getChatsList () {
 }
 
 window.inviteSomeone = async function () {
-  const invitee = UI.store.namedNode(document.getElementById('invitee').value)
+  const invitee = store.namedNode(document.getElementById('invitee').value)
   const created = await getChat(invitee)
   console.log(created)
   renderMenuDiv()
@@ -78,12 +79,12 @@ async function appendChatPane (dom, uri) {
   const doc = subject.doc()
 
   await new Promise((resolve, reject) => {
-    UI.store.fetcher.load(doc).then(resolve, reject)
+    store.fetcher.load(doc).then(resolve, reject)
   })
   const context = { // see https://github.com/solid/solid-panes/blob/005f90295d83e499fd626bd84aeb3df10135d5c1/src/index.ts#L30-L34
     dom,
     session: {
-      store: UI.store
+      store: store
     }
   }
   const options = {}
@@ -100,7 +101,7 @@ document.addEventListener('DOMContentLoaded', function () {
 window.onload = () => {
   console.log('document ready')
   const onSessionChange = () => {
-    const currentUser = UI.authn.currentUser()
+    const currentUser = authn.currentUser()
     if (!currentUser) {
       console.log('The user is not logged in')
       document.getElementById('loginBanner').innerHTML = '<button onclick="popupLogin()">Log in</button>'
@@ -116,16 +117,16 @@ window.onload = () => {
       appendChatPane(document, uri)
     }
   }
-  UI.authn.authSession.onLogin(() => onSessionChange())
-  UI.authn.authSession.onSessionRestore(() => onSessionChange())
+  authSession.onLogin(() => onSessionChange())
+  authSession.onSessionRestore(() => onSessionChange())
   onSessionChange()
 }
 window.logout = () => {
-  UI.authn.authSession.logout()
+  authSession.logout()
   window.location = ''
 }
 window.popupLogin = async function () {
-  if (!UI.authn.currentUser()) {
-    UI.authn.renderSignInPopup(document)
+  if (!authn.currentUser()) {
+    UI.login.renderSignInPopup(document)
   }
 }

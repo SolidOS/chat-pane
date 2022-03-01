@@ -4,7 +4,7 @@
  ** and investigate the interop between them.
  */
 /* global $rdf */
-
+import { store } from 'solid-logic'
 const UI = require('solid-ui')
 const ns = UI.ns
 
@@ -117,7 +117,7 @@ module.exports = {
       // subject may be the file
       messageStore = subject.doc()
     } else if (kb.any(subject, UI.ns.wf('message'))) {
-      messageStore = UI.store.any(subject, UI.ns.wf('message')).doc()
+      messageStore = store.any(subject, UI.ns.wf('message')).doc()
     } else if (
       kb.holds(undefined, ns.rdf('type'), ns.foaf('ChatChannel'), subject) ||
       kb.holds(subject, ns.rdf('type'), ns.foaf('ChatChannel'))
