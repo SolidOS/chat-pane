@@ -9,7 +9,7 @@ const $rdf = require('rdflib')
 
 const mainClass = ns.meeting('LongChat') // @@ something from SIOC?
 
-const CHAT_LOCATION_IN_CONTAINER = 'index.ttl#this'
+export const CHAT_LOCATION_IN_CONTAINER = 'index.ttl#this'
 
 // const menuIcon = 'noun_897914.svg'
 const SPANNER_ICON = 'noun_344563.svg'
@@ -17,7 +17,7 @@ const SPANNER_ICON = 'noun_344563.svg'
 const SIDEBAR_COMPONENT_STYLE = UI.style.sidebarComponentStyle || ' padding: 0.5em; width: 100%;'
 const SIDEBAR_STYLE = UI.style.sidebarStyle || 'overflow-x: auto; overflow-y: auto; border-radius: 1em; border: 0.1em solid white;'
 // was purple border
-module.exports = {
+export const longChatPane = {
   CHAT_LOCATION_IN_CONTAINER,
 
   // noun_704.svg Canoe   noun_346319.svg = 1 Chat  noun_1689339.svg = three chat
