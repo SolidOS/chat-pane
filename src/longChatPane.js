@@ -3,13 +3,13 @@
  **  A long chat consists a of a series of chat files saved by date.
  */
 import { authn } from 'solid-logic'
-const UI = require('solid-ui')
+import * as UI from 'solid-ui'
+import * as $rdf from 'rdflib'
 const ns = UI.ns
-const $rdf = require('rdflib')
 
 const mainClass = ns.meeting('LongChat') // @@ something from SIOC?
 
-export const CHAT_LOCATION_IN_CONTAINER = 'index.ttl#this'
+const CHAT_LOCATION_IN_CONTAINER = 'index.ttl#this'
 
 // const menuIcon = 'noun_897914.svg'
 const SPANNER_ICON = 'noun_344563.svg'
