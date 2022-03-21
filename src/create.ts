@@ -1,7 +1,7 @@
 import { ns, widgets } from 'solid-ui'
 import { authn, store } from 'solid-logic'
 import { NamedNode, st } from 'rdflib'
-import  { CHAT_LOCATION_IN_CONTAINER, longChatPane }  from './longChatPane'
+import { CHAT_LOCATION_IN_CONTAINER, longChatPane }  from './longChatPane'
 
 async function getMe () {
   const me = authn.currentUser()
