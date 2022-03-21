@@ -50,10 +50,10 @@
     "solid-ui": "^2.4.19"
   },
   "devDependencies": {
-    "@babel/cli": "^7.16.0",
-    "@babel/core": "^7.16.0",
-    "@babel/preset-env": "^7.16.0",
-    "@babel/preset-typescript": "^7.16.0",
+    "@babel/cli": "^7.17.6",
+    "@babel/core": "^7.17.8",
+    "@babel/preset-env": "^7.16.11",
+    "@babel/preset-typescript": "^7.16.7",
     "@webpack-cli/serve": "^0.2.0",
     "babel-loader": "^8.2.3",
     "command-line-args": "^5.2.1",
