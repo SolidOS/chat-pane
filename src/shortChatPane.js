@@ -5,10 +5,11 @@
  */
 /* global $rdf */
 import { store } from 'solid-logic'
-const UI = require('solid-ui')
+import * as UI from 'solid-ui'
+
 const ns = UI.ns
 
-module.exports = {
+export const shortChatPane = {
   icon: UI.icons.iconBase + 'noun_346319.svg',
 
   name: 'chat',

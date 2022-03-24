@@ -9,16 +9,16 @@
     "dist"
   ],
   "scripts": {
+    "build": "npm run clean && webpack && npm run build-lib",
+    "build-lib": "babel src -d lib --source-maps --extensions '.ts,.js'",
+    "clean": "rm -rf lib && rm -rf dist",
+    "test": "npm run lint",
     "lint": "eslint '*.js'",
     "lint-fix": "eslint '*.js' --fix",
-    "test": "npm run lint",
-    "clean": "rm -rf lib && rm -rf dist",
     "prepublishOnly": "npm test && npm run build && npm run build-lib",
     "postpublish": "git push origin main --follow-tags",
     "watch": "webpack --watch",
-    "start": "webpack-dev-server --open",
-    "build": "webpack && npm run build-lib",
-    "build-lib": "babel src -d lib --source-maps --extensions '.ts,.js'"
+    "start": "webpack serve --open"
   },
   "repository": {
     "type": "git",
@@ -45,19 +45,18 @@
   },
   "homepage": "https://github.com/solid/chat-pane",
   "dependencies": {
-    "buffer": "^6.0.3",
-    "crypto-browserify": "^3.12.0",
-    "path-browserify": "^1.0.1",
+    "rdflib": "^2.2.18",
     "solid-logic": "^1.3.14",
-    "solid-ui": "^2.4.19",
-    "stream-browserify": "^3.0.0"
+    "solid-ui": "^2.4.19"
   },
   "devDependencies": {
     "@babel/cli": "^7.16.0",
     "@babel/core": "^7.16.0",
     "@babel/preset-env": "^7.16.0",
     "@babel/preset-typescript": "^7.16.0",
+    "@webpack-cli/serve": "^0.2.0",
     "babel-loader": "^8.2.3",
+    "command-line-args": "^5.2.1",
     "eslint": "^7.32.0",
     "html-webpack-plugin": "^4.5.2",
     "husky": "^7.0.4",
@@ -65,7 +64,7 @@
     "standard": "^16.0.4",
     "typescript": "^4.4.4",
     "webpack": "^4.46.0",
-    "webpack-cli": "^3.3.12",
+    "webpack-cli": "^4.9.0",
     "webpack-dev-server": "^4.4.0"
   },
   "husky": {

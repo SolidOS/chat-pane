@@ -4,13 +4,13 @@ const path = require('path')
 
 module.exports = [{
   mode: 'development',
-  entry: './src/index.js',
+  entry: './dev/index.js',
   output: {
     path: path.resolve(__dirname, 'dist'),
-    filename: 'chat.bundle.js'
+    filename: 'dev.bundle.js'
   },
   plugins: [
-    new HtmlWebpackPlugin({ template: './src/index.html' })
+    new HtmlWebpackPlugin({ template: './dev/index.html' })
   ],
   resolve: {
     extensions: ['.mjs', '.js', '.ts']
@@ -36,7 +36,7 @@ module.exports = [{
     '@trust/webcrypto': 'crypto'
   },
   devServer: {
-    contentBase: './dist'
+    static: './dist'
   },
   devtool: 'source-map'
 },

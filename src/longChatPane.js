@@ -3,9 +3,9 @@
  **  A long chat consists a of a series of chat files saved by date.
  */
 import { authn } from 'solid-logic'
-const UI = require('solid-ui')
+import * as UI from 'solid-ui'
+import * as $rdf from 'rdflib'
 const ns = UI.ns
-const $rdf = require('rdflib')
 
 const mainClass = ns.meeting('LongChat') // @@ something from SIOC?
 
@@ -17,7 +17,7 @@ const SPANNER_ICON = 'noun_344563.svg'
 const SIDEBAR_COMPONENT_STYLE = UI.style.sidebarComponentStyle || ' padding: 0.5em; width: 100%;'
 const SIDEBAR_STYLE = UI.style.sidebarStyle || 'overflow-x: auto; overflow-y: auto; border-radius: 1em; border: 0.1em solid white;'
 // was purple border
-module.exports = {
+export const longChatPane = {
   CHAT_LOCATION_IN_CONTAINER,
 
   // noun_704.svg Canoe   noun_346319.svg = 1 Chat  noun_1689339.svg = three chat

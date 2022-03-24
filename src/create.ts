@@ -1,7 +1,7 @@
 import { ns, widgets } from 'solid-ui'
 import { authn, store } from 'solid-logic'
 import { NamedNode, st } from 'rdflib'
-import longChatPane, { CHAT_LOCATION_IN_CONTAINER } from './longChatPane'
+import { longChatPane }  from './longChatPane'
 
 async function getMe () {
   const me = authn.currentUser()
@@ -125,7 +125,7 @@ export async function findChat (invitee: NamedNode) {
   const chatContainer = determineChatContainer(invitee, podRoot)
   let exists = true
   try {
-    await store.fetcher.load(new NamedNode(chatContainer.value + CHAT_LOCATION_IN_CONTAINER))
+    await store.fetcher.load(new NamedNode(chatContainer.value + longChatPane.CHAT_LOCATION_IN_CONTAINER))
   } catch (e) {
     exists = false
   }
@@ -135,7 +135,7 @@ export async function findChat (invitee: NamedNode) {
 export async function getChat (invitee: NamedNode, createIfMissing = true): Promise<NamedNode> {
   const { me, chatContainer, exists } = await findChat (invitee)
   if (exists) {
-    return new NamedNode(chatContainer.value + CHAT_LOCATION_IN_CONTAINER)
+    return new NamedNode(chatContainer.value + longChatPane.CHAT_LOCATION_IN_CONTAINER)
   }
 
   if (createIfMissing) {

@@ -1,10 +1,27 @@
-/* global SolidAuthClient */
-
 import { store, authn, authSession } from 'solid-logic'
-const ChatPane = require('./longChatPane.js')
-const $rdf = require('rdflib')
-const UI = require('solid-ui')
-const { getChat } = require('./create.ts')
+import * as $rdf from 'rdflib'
+import * as UI from 'solid-ui'
+import { longChatPane } from '../src/longChatPane.js'
+import { getChat } from '../src/create.ts'
+import { context, fetcher } from './context'
+
+const loginBanner = document.getElementById('loginBanner')
+const webId = document.getElementById('webId')
+
+loginBanner.appendChild(UI.login.loginStatusBox(document, null, {}))
+
+async function finishLogin () {
+  await authSession.handleIncomingRedirect()
+  const session = authSession
+  if (session.info.isLoggedIn) {
+    // Update the page with the status.
+    webId.innerHTML = 'Logged in as: ' + authn.currentUser().uri
+  } else {
+    webId.innerHTML = ''
+  }
+}
+
+finishLogin()
 
 const menuDiv = document.createElement('div')
 
@@ -14,8 +31,7 @@ async function renderMenuDiv () {
   console.log('get chats list')
   menuDiv.innerHTML += await getChatsList()
 }
-// FIXME:
-window.$rdf = $rdf
+
 window.followLink = async function (from, follow, multiple) {
   const subject = $rdf.sym(from)
   const doc = subject.doc()
@@ -49,7 +65,7 @@ window.inviteSomeone = async function () {
 }
 
 async function getInvitesList () {
-  const webId = (await SolidAuthClient.currentSession()).webId
+  const webId = authSession.webId
   const globalInbox = await window.followLink(webId, UI.ns.ldp('inbox'))
   const inboxItems = await window.followLink(globalInbox, UI.ns.ldp('contains'), true)
   const invites = []
@@ -81,52 +97,17 @@ async function appendChatPane (dom, uri) {
   await new Promise((resolve, reject) => {
     store.fetcher.load(doc).then(resolve, reject)
   })
-  const context = { // see https://github.com/solid/solid-panes/blob/005f90295d83e499fd626bd84aeb3df10135d5c1/src/index.ts#L30-L34
-    dom,
-    session: {
-      store: store
-    }
-  }
+
   const options = {}
   renderMenuDiv()
   dom.body.appendChild(menuDiv)
   console.log('chat', subject)
-  const paneDiv = ChatPane.render(subject, context, options)
+  const paneDiv = longChatPane.render(subject, context, options)
   dom.body.appendChild(paneDiv)
 }
 
-document.addEventListener('DOMContentLoaded', function () {
+const webIdToShow = 'https://solidos.solidcommunity.net/Team/SolidOs%20team%20chat/index.ttl#this'
+
+fetcher.load(webIdToShow).then(() => {
+  appendChatPane(document, webIdToShow)
 })
-
-window.onload = () => {
-  console.log('document ready')
-  const onSessionChange = () => {
-    const currentUser = authn.currentUser()
-    if (!currentUser) {
-      console.log('The user is not logged in')
-      document.getElementById('loginBanner').innerHTML = '<button onclick="popupLogin()">Log in</button>'
-    } else {
-      console.log(`Logged in as ${currentUser}`)
-
-      document.getElementById('loginBanner').innerHTML = `Logged in as ${currentUser} <button onclick="logout()">Log out</button>`
-      // Set up the view for the subject indicated in the fragment of the window's URL
-      const uri = decodeURIComponent(window.location.hash.substr(1))
-      if (uri.length === 0) {
-        window.location = '?#' + encodeURIComponent('https://solidos.solidcommunity.net/Team/SolidOs%20team%20chat/index.ttl#this')
-      }
-      appendChatPane(document, uri)
-    }
-  }
-  authSession.onLogin(() => onSessionChange())
-  authSession.onSessionRestore(() => onSessionChange())
-  onSessionChange()
-}
-window.logout = () => {
-  authSession.logout()
-  window.location = ''
-}
-window.popupLogin = async function () {
-  if (!authn.currentUser()) {
-    UI.login.renderSignInPopup(document)
-  }
-}
