@@ -1,19 +1,15 @@
 
 const HtmlWebpackPlugin = require('html-webpack-plugin')
-const path = require('path')
 
 module.exports = [{
   mode: 'development',
   entry: './dev/index.js',
-  output: {
-    path: path.resolve(__dirname, 'dist'),
-    filename: 'dev.bundle.js'
-  },
   plugins: [
     new HtmlWebpackPlugin({ template: './dev/index.html' })
   ],
   resolve: {
-    extensions: ['.mjs', '.js', '.ts']
+    extensions: ['.mjs', '.js', '.ts'],
+    fallback: { path: false }
   },
   module: {
     rules: [
@@ -46,9 +42,8 @@ module.exports = [{
     shortChatPane: './src/shortChatPane.js',
     longChatPane: './src/longChatPane.js'
   },
-  output: {
-    path: path.resolve(__dirname, 'dist'),
-    filename: '[name].js'
+  resolve: {
+    fallback: { path: false }
   },
   externals: {
     fs: 'null',
