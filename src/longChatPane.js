@@ -323,10 +323,13 @@ export const longChatPane = {
     var paneRow = triptych.appendChild(dom.createElement('tr'))
     var paneLeft = paneRow.appendChild(dom.createElement('td'))
     var paneMiddle = paneRow.appendChild(dom.createElement('td'))
+    var paneThread = paneRow.appendChild(dom.createElement('td'))
     var paneRight = paneRow.appendChild(dom.createElement('td'))
     var paneBottom = triptych.appendChild(dom.createElement('tr'))
     paneLeft.style = SIDEBAR_STYLE
     paneLeft.style.paddingRight = '1em'
+    paneThread.style = SIDEBAR_STYLE
+    paneThread.style.paddingLeft = '1em'
     paneRight.style = SIDEBAR_STYLE
     paneRight.style.paddingLeft = '1em'
 
@@ -369,6 +372,30 @@ export const longChatPane = {
     const participantsHandlerContext = { noun: 'chat room', div, dom: dom }
     participantsHandlerContext.me = authn.currentUser() // If already logged on
 
+    async function showThread(thread, options) {
+        console.log('@@@@ showThread thread ' + thread)
+        const newOptions = {} // @@@ inherit
+        newOptions.thread = thread
+        newOptions.includeRemoveButton = true
+
+        newOptions.authorDateOnLeft = options.authorDateOnLeft
+        newOptions.newestFirst = options.newestFirst
+
+        paneThread.innerHTML = ''
+        console.log('Options for showThread message Area', newOptions)
+
+        const chatControl = await UI.infiniteMessageArea(
+          dom,
+          kb,
+          chatChannel,
+          newOptions
+        )
+        chatControl.style.resize = 'both'
+        chatControl.style.overflow = 'auto'
+        chatControl.style.maxHeight = triptychHeight
+        paneThread.appendChild(chatControl)
+    }
+
     async function buildPane () {
       let prefMap
       try {
@@ -387,6 +414,7 @@ export const longChatPane = {
         // This is the top pane, title, scrollbar etc are ours
         options.solo = true
       }
+      options.showThread = showThread
       const chatControl = await UI.infiniteMessageArea(
         dom,
         kb,
