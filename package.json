@@ -18,7 +18,8 @@
     "prepublishOnly": "npm test && npm run build && npm run build-lib",
     "postpublish": "git push origin main --follow-tags",
     "watch": "webpack --watch",
-    "start": "webpack serve --open"
+    "start": "webpack serve --open",
+    "dev": "webpack serve --config webpack.dev.config.js --open"
   },
   "repository": {
     "type": "git",
