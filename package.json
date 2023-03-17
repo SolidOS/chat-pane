@@ -46,26 +46,26 @@
   },
   "homepage": "https://github.com/solid/chat-pane",
   "dependencies": {
-    "rdflib": "^2.2.28",
-    "solid-logic": "^3.0.1",
-    "solid-ui": "^2.4.26"
+    "rdflib": "^2.2.30",
+    "solid-logic": "^3.0.2",
+    "solid-ui": "^2.4.27"
   },
   "devDependencies": {
     "@babel/cli": "^7.21.0",
-    "@babel/core": "^7.21.0",
+    "@babel/core": "^7.21.3",
     "@babel/preset-env": "^7.20.2",
     "@babel/preset-typescript": "^7.21.0",
     "babel-loader": "^8.3.0",
     "buffer": "^6.0.3",
-    "eslint": "^8.35.0",
+    "eslint": "^8.36.0",
     "html-webpack-plugin": "^5.5.0",
     "husky": "^7.0.4",
     "lint-staged": "^12.5.0",
     "node-polyfill-webpack-plugin": "^2.0.1",
     "typescript": "^4.9.5",
-    "webpack": "^5.75.0",
+    "webpack": "^5.76.2",
     "webpack-cli": "^4.10.0",
-    "webpack-dev-server": "^4.11.1"
+    "webpack-dev-server": "^4.12.0"
   },
   "husky": {
     "hooks": {
