@@ -64,12 +64,12 @@ export const shortChatPane = {
   mintClass: ns.meeting('Chat'),
 
   mintNew: function (context, newPaneOptions) {
-    // This is deprecating the creation of short Chats from now on 2023/04/03.
-    // The mintNew function shall be removed/commented out in a few months.
+    // This deprecates the creation of short Chats after 2023-04-03.
+    // The mintNew function will be removed/commented out in a few months.
     if (!confirm('short Chat is deprecated in favor of long Chat.'
-      + '\nEmbedded chat for comments and existing short Chats shall work.'
-      + '\nYou can report an issue at https://github.com/SolidOS/chat-pane ?'
-      + '\n\nDo you really want to create a new deprecated short Chat ?')) return
+      + '\nEmbedded chat for comments and existing short Chats will work.'
+      + '\nYou can report any issues at https://github.com/SolidOS/chat-pane ?'
+      + '\n\nDo you really want to create a new deprecated short Chat?')) return
     const kb = context.session.store
     var updater = kb.updater
     if (newPaneOptions.me && !newPaneOptions.me.uri) {
