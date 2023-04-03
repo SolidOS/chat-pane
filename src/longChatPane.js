@@ -30,7 +30,13 @@ export const longChatPane = {
     if (kb.holds(subject, ns.rdf('type'), ns.meeting('LongChat'))) {
       // subject is the object
       return 'Chat channnel'
-    } // Looks like a message -- might not havre any class declared
+    }
+    if (kb.holds(subject, ns.rdf('type'), ns.sioc('Thread'))) {
+      // subject is the object
+      return 'Thread'
+    }
+
+    // Looks like a message -- might not havre any class declared
     if (
       kb.any(subject, ns.sioc('content')) &&
       kb.any(subject, ns.dct('created'))
@@ -298,12 +304,21 @@ export const longChatPane = {
 
     var chatChannel = subject
     var selectedMessage = null
+    var thread = null
     if (kb.holds(subject, ns.rdf('type'), ns.meeting('LongChat'))) {
       // subject is the chatChannel
       console.log('Chat channnel')
 
       // Looks like a message -- might not havre any class declared
-    } else if (
+    } else if (kb.holds(subject, ns.rdf('type'), ns.sioc('Thread'))) {
+      // subject is the chatChannel
+      console.log('Thread is subject')
+      thread = subject
+      const rootMessage = kb.the(null, ns.sioc('has_reply'), thread, thread.doc())
+      if (!rootMessage) throw new Error('Thread has no root message ' + thread)
+      chatChannel = kb.any(null, ns.wf('message'), rootMessage)
+      if (!chatChannel) throw new Error('Thread root has no link to chatChannel')
+    } else if ( // Looks like a message -- might not havre any class declared
       kb.any(subject, ns.sioc('content')) &&
       kb.any(subject, ns.dct('created'))
     ) {
@@ -414,7 +429,11 @@ export const longChatPane = {
         // This is the top pane, title, scrollbar etc are ours
         options.solo = true
       }
-      options.showThread = showThread
+      if (thread) { // Rendereing a thread as first class object
+          options.thread  = thread
+      } else { // either show thread *or* allow new threads. Threads don't nest but they could
+          options.showThread = showThread
+      }
       const chatControl = await UI.infiniteMessageArea(
         dom,
         kb,
