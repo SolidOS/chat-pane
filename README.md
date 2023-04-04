@@ -9,6 +9,9 @@ Do add your wishlists to the issue list for a solid based (safe based etc) chat 
 You can build with `npm install && npm run build && cd dist && npx serve`.
 You can debug with VSCode + Chrome (see `.vscode/launch.json`).
 
+## Development
+`npm run dev`
+
 ## Deploy stand-alone
 
 You can deploy this code as a stand-alone Solid app.
