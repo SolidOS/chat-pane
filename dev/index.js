@@ -2,7 +2,7 @@ import { store, authn, authSession } from 'solid-logic'
 import * as $rdf from 'rdflib'
 import * as UI from 'solid-ui'
 import { longChatPane } from '../src/longChatPane.js'
-import { getChat } from '../src/create.ts'
+import { getChat } from '../src/getChat'
 import { context, fetcher } from './context'
 
 const loginBanner = document.getElementById('loginBanner')
