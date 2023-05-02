@@ -13,10 +13,24 @@ async function getMe () {
 }
 
 async function getPodRoot (me): Promise<NamedNode> {
-  const podRoot = store.any(me, ns.space('storage'), undefined, me.doc())
-  if (!podRoot) {
-    throw new Error('Current user pod root not found!')
+  const meURL = new URL(me.uri)
+  // find storages in webId
+  const storages = store.each(me, ns.space('storage'), undefined, me.doc())
+  if (!storages?.length) {
+    // find storage recursively in me.uri
+    let path = meURL.pathname
+    while (path.length) {
+      path = path.substring(0, path.lastIndexOf('/') + 1)
+      const storage = meURL.origin + path
+      if(store.holds(store.sym(storage), ns.rdf('type'), ns.space('Storage'), store.sym(storage))) {
+        return store.sym(storage)
+      }
+      if (storage === meURL.origin + '/') throw new Error('Current user pod root not found!')
+    }
   }
+  // give webId preference
+  const podRoot = storages.find(storage => meURL.origin === new URL(storage.uri).origin)
+  if(!podRoot) podRoot = storages[0]
   return podRoot
 }
 
