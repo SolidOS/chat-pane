@@ -67,6 +67,31 @@ export const longChatPane = {
       kb.add(newInstance, ns.dc('author'), newPaneOptions.me, newChatDoc)
     }
 
+    const aclBody = (me) => `
+    @prefix : <#>.
+    @prefix acl: <http://www.w3.org/ns/auth/acl#>.
+    @prefix foaf: <http://xmlns.com/foaf/0.1/>.
+    @prefix lon: <./>.
+
+    :ControlReadWrite
+        a acl:Authorization;
+        acl:accessTo lon:;
+        acl:agent <${me.uri}>;
+        acl:default lon:;
+        acl:mode acl:Control, acl:Read, acl:Write.
+    :Read
+        a acl:Authorization;
+        acl:accessTo lon:;
+        acl:agentClass foaf:Agent;
+        acl:default lon:;
+        acl:mode acl:Read.
+    :ReadAppend
+        a acl:Authorization;
+        acl:accessTo lon:;
+        acl:agentClass acl:AuthenticatedAgent;
+        acl:default lon:;
+        acl:mode acl:Read, acl:Append.`
+
     return new Promise(function (resolve, reject) {
       updater.put(
         newChatDoc,
@@ -84,6 +109,18 @@ export const longChatPane = {
           }
         }
       )
+      // newChat container authenticated users Append only
+      .then((result) => {
+        return new Promise((resolve, reject) => {
+          if (newPaneOptions.me) {
+            kb.fetcher.webOperation('PUT', newPaneOptions.newBase + '.acl', {
+              data: aclBody(newPaneOptions.me),
+              contentType: 'text/turtle'
+            })
+          }
+          resolve(newPaneOptions)
+        })
+      })
     })
   },
 
