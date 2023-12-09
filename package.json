@@ -49,7 +49,7 @@
     "pane-registry": "^2.4.24",
     "rdflib": "^2.2.33",
     "solid-logic": "^3.0.5",
-    "solid-ui": "^2.4.27"
+    "solid-ui": "^2.4.30-28954ea4"
   },
   "devDependencies": {
     "@babel/cli": "^7.21.0",
