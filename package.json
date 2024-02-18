@@ -1,6 +1,10 @@
 {
   "name": "chat-pane",
+<<<<<<< HEAD
   "version": "2.4.23-test",
+=======
+  "version": "2.4.25",
+>>>>>>> main
   "description": "Solid-compatible Panes: Chat",
   "main": "./lib/main.js",
   "files": [
@@ -46,34 +50,40 @@
   },
   "homepage": "https://github.com/solid/chat-pane",
   "dependencies": {
+<<<<<<< HEAD
     "pane-registry": "^2.4.24",
     "rdflib": "^2.2.33",
     "solid-logic": "^3.0.5",
     "solid-ui": "^2.4.30-28954ea4"
+=======
+    "rdflib": "^2.2.33",
+    "solid-logic": "^3.0.6",
+    "solid-ui": "^2.4.32"
+>>>>>>> main
   },
   "devDependencies": {
-    "@babel/cli": "^7.21.0",
-    "@babel/core": "^7.21.3",
-    "@babel/preset-env": "^7.20.2",
-    "@babel/preset-typescript": "^7.21.0",
-    "@testing-library/dom": "^9.2.0",
-    "@testing-library/jest-dom": "^5.16.5",
-    "@types/jest": "^29.5.0",
-    "babel-jest": "^29.5.0",
+    "@babel/cli": "^7.23.4",
+    "@babel/core": "^7.23.5",
+    "@babel/preset-env": "^7.23.5",
+    "@babel/preset-typescript": "^7.23.3",
+    "@testing-library/dom": "^9.3.3",
+    "@testing-library/jest-dom": "^5.17.0",
+    "@types/jest": "^29.5.10",
+    "babel-jest": "^29.7.0",
     "babel-loader": "^8.3.0",
     "buffer": "^6.0.3",
-    "eslint": "^8.36.0",
-    "html-webpack-plugin": "^5.5.0",
+    "eslint": "^8.55.0",
+    "html-webpack-plugin": "^5.5.3",
     "husky": "^7.0.4",
-    "jest": "^29.5.0",
-    "jest-environment-jsdom": "^29.5.0",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
     "jest-fetch-mock": "^3.0.3",
     "lint-staged": "^12.5.0",
     "node-polyfill-webpack-plugin": "^2.0.1",
     "typescript": "^4.9.5",
-    "webpack": "^5.76.2",
+    "webpack": "^5.89.0",
     "webpack-cli": "^4.10.0",
-    "webpack-dev-server": "^4.12.0"
+    "webpack-dev-server": "^4.15.1"
   },
   "husky": {
     "hooks": {
