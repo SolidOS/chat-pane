@@ -1,10 +1,6 @@
 {
   "name": "chat-pane",
-<<<<<<< HEAD
-  "version": "2.4.23-test",
-=======
   "version": "2.4.25",
->>>>>>> main
   "description": "Solid-compatible Panes: Chat",
   "main": "./lib/main.js",
   "files": [
@@ -50,16 +46,9 @@
   },
   "homepage": "https://github.com/solid/chat-pane",
   "dependencies": {
-<<<<<<< HEAD
-    "pane-registry": "^2.4.24",
-    "rdflib": "^2.2.33",
-    "solid-logic": "^3.0.5",
-    "solid-ui": "^2.4.30-28954ea4"
-=======
     "rdflib": "^2.2.33",
     "solid-logic": "^3.0.6",
     "solid-ui": "^2.4.32"
->>>>>>> main
   },
   "devDependencies": {
     "@babel/cli": "^7.23.4",
