@@ -67,7 +67,7 @@ export const longChatPane = {
       kb.add(newInstance, ns.dc('author'), newPaneOptions.me, newChatDoc)
     }
 
-    const aclBody = (me) => `
+    const aclBody = (me, AppendWrite) => `
     @prefix : <#>.
     @prefix acl: <http://www.w3.org/ns/auth/acl#>.
     @prefix foaf: <http://xmlns.com/foaf/0.1/>.
@@ -85,12 +85,12 @@ export const longChatPane = {
         acl:agentClass foaf:Agent;
         acl:default lon:;
         acl:mode acl:Read.
-    :ReadAppend
+    :Read${AppendWrite}
         a acl:Authorization;
         acl:accessTo lon:;
         acl:agentClass acl:AuthenticatedAgent;
         acl:default lon:;
-        acl:mode acl:Read, acl:Append.`
+        acl:mode acl:Read, acl:${AppendWrite}.`
 
     return new Promise(function (resolve, reject) {
       updater.put(
@@ -114,7 +114,11 @@ export const longChatPane = {
         return new Promise((resolve, reject) => {
           if (newPaneOptions.me) {
             kb.fetcher.webOperation('PUT', newPaneOptions.newBase + '.acl', {
-              data: aclBody(newPaneOptions.me),
+              data: aclBody(newPaneOptions.me, 'Append'),
+              contentType: 'text/turtle'
+            })
+            kb.fetcher.webOperation('PUT', newPaneOptions.newBase + 'index.ttl.acl', {
+              data: aclBody(newPaneOptions.me, 'Write'),
               contentType: 'text/turtle'
             })
           }
@@ -344,12 +348,12 @@ export const longChatPane = {
     var thread = null
     if (kb.holds(subject, ns.rdf('type'), ns.meeting('LongChat'))) {
       // subject is the chatChannel
-      console.log('Chat channnel')
+      console.log('@@@ Chat channnel')
 
       // Looks like a message -- might not havre any class declared
     } else if (kb.holds(subject, ns.rdf('type'), ns.sioc('Thread'))) {
       // subject is the chatChannel
-      console.log('Thread is subject')
+      console.log('Thread is subject ' + subject.uri)
       thread = subject
       const rootMessage = kb.the(null, ns.sioc('has_reply'), thread, thread.doc())
       if (!rootMessage) throw new Error('Thread has no root message ' + thread)
@@ -359,7 +363,7 @@ export const longChatPane = {
       kb.any(subject, ns.sioc('content')) &&
       kb.any(subject, ns.dct('created'))
     ) {
-      console.log('message')
+      console.log('message is subject ' + subject.uri)
       selectedMessage = subject
       chatChannel = kb.any(null, ns.wf('message'), selectedMessage)
       if (!chatChannel) throw new Error('Message has no link to chatChannel')
