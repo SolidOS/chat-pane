@@ -67,11 +67,11 @@ export const longChatPane = {
       kb.add(newInstance, ns.dc('author'), newPaneOptions.me, newChatDoc)
     }
 
-    const aclBody = (me, AppendWrite) => `
+    const aclBody = (me, resource, AppendWrite) => `
     @prefix : <#>.
     @prefix acl: <http://www.w3.org/ns/auth/acl#>.
     @prefix foaf: <http://xmlns.com/foaf/0.1/>.
-    @prefix lon: <./>.
+    @prefix lon: <./${resource}>.
 
     :ControlReadWrite
         a acl:Authorization;
@@ -114,11 +114,11 @@ export const longChatPane = {
         return new Promise((resolve, reject) => {
           if (newPaneOptions.me) {
             kb.fetcher.webOperation('PUT', newPaneOptions.newBase + '.acl', {
-              data: aclBody(newPaneOptions.me, 'Append'),
+              data: aclBody(newPaneOptions.me, '', 'Append'),
               contentType: 'text/turtle'
             })
             kb.fetcher.webOperation('PUT', newPaneOptions.newBase + 'index.ttl.acl', {
-              data: aclBody(newPaneOptions.me, 'Write'),
+              data: aclBody(newPaneOptions.me, 'index.ttl', 'Write'),
               contentType: 'text/turtle'
             })
           }
