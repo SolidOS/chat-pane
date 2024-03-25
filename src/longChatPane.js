@@ -30,7 +30,13 @@ export const longChatPane = {
     if (kb.holds(subject, ns.rdf('type'), ns.meeting('LongChat'))) {
       // subject is the object
       return 'Chat channnel'
-    } // Looks like a message -- might not havre any class declared
+    }
+    if (kb.holds(subject, ns.rdf('type'), ns.sioc('Thread'))) {
+      // subject is the object
+      return 'Thread'
+    }
+
+    // Looks like a message -- might not havre any class declared
     if (
       kb.any(subject, ns.sioc('content')) &&
       kb.any(subject, ns.dct('created'))
@@ -61,6 +67,31 @@ export const longChatPane = {
       kb.add(newInstance, ns.dc('author'), newPaneOptions.me, newChatDoc)
     }
 
+    const aclBody = (me, resource, AppendWrite) => `
+    @prefix : <#>.
+    @prefix acl: <http://www.w3.org/ns/auth/acl#>.
+    @prefix foaf: <http://xmlns.com/foaf/0.1/>.
+    @prefix lon: <./${resource}>.
+
+    :ControlReadWrite
+        a acl:Authorization;
+        acl:accessTo lon:;
+        acl:agent <${me.uri}>;
+        acl:default lon:;
+        acl:mode acl:Control, acl:Read, acl:Write.
+    :Read
+        a acl:Authorization;
+        acl:accessTo lon:;
+        acl:agentClass foaf:Agent;
+        acl:default lon:;
+        acl:mode acl:Read.
+    :Read${AppendWrite}
+        a acl:Authorization;
+        acl:accessTo lon:;
+        acl:agentClass acl:AuthenticatedAgent;
+        acl:default lon:;
+        acl:mode acl:Read, acl:${AppendWrite}.`
+
     return new Promise(function (resolve, reject) {
       updater.put(
         newChatDoc,
@@ -78,6 +109,22 @@ export const longChatPane = {
           }
         }
       )
+      // newChat container authenticated users Append only
+      .then((result) => {
+        return new Promise((resolve, reject) => {
+          if (newPaneOptions.me) {
+            kb.fetcher.webOperation('PUT', newPaneOptions.newBase + '.acl', {
+              data: aclBody(newPaneOptions.me, '', 'Append'),
+              contentType: 'text/turtle'
+            })
+            kb.fetcher.webOperation('PUT', newPaneOptions.newBase + 'index.ttl.acl', {
+              data: aclBody(newPaneOptions.me, 'index.ttl', 'Write'),
+              contentType: 'text/turtle'
+            })
+          }
+          resolve(newPaneOptions)
+        })
+      })
     })
   },
 
@@ -298,16 +345,25 @@ export const longChatPane = {
 
     var chatChannel = subject
     var selectedMessage = null
+    var thread = null
     if (kb.holds(subject, ns.rdf('type'), ns.meeting('LongChat'))) {
       // subject is the chatChannel
-      console.log('Chat channnel')
+      console.log('@@@ Chat channnel')
 
       // Looks like a message -- might not havre any class declared
-    } else if (
+    } else if (kb.holds(subject, ns.rdf('type'), ns.sioc('Thread'))) {
+      // subject is the chatChannel
+      console.log('Thread is subject ' + subject.uri)
+      thread = subject
+      const rootMessage = kb.the(null, ns.sioc('has_reply'), thread, thread.doc())
+      if (!rootMessage) throw new Error('Thread has no root message ' + thread)
+      chatChannel = kb.any(null, ns.wf('message'), rootMessage)
+      if (!chatChannel) throw new Error('Thread root has no link to chatChannel')
+    } else if ( // Looks like a message -- might not havre any class declared
       kb.any(subject, ns.sioc('content')) &&
       kb.any(subject, ns.dct('created'))
     ) {
-      console.log('message')
+      console.log('message is subject ' + subject.uri)
       selectedMessage = subject
       chatChannel = kb.any(null, ns.wf('message'), selectedMessage)
       if (!chatChannel) throw new Error('Message has no link to chatChannel')
@@ -414,7 +470,11 @@ export const longChatPane = {
         // This is the top pane, title, scrollbar etc are ours
         options.solo = true
       }
-      options.showThread = showThread
+      if (thread) { // Rendereing a thread as first class object
+          options.thread  = thread
+      } else { // either show thread *or* allow new threads. Threads don't nest but they could
+          options.showThread = showThread
+      }
       const chatControl = await UI.infiniteMessageArea(
         dom,
         kb,
