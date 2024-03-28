@@ -46,9 +46,9 @@
   },
   "homepage": "https://github.com/solid/chat-pane",
   "dependencies": {
-    "rdflib": "^2.2.34-beta",
-    "solid-logic": "^3.0.7-beta1",
-    "solid-ui": "^2.4.33-beta"
+    "rdflib": "^2.2.34-beta3",
+    "solid-logic": "^3.0.7-beta3",
+    "solid-ui": "^2.4.33-beta4"
   },
   "devDependencies": {
     "@babel/cli": "^7.24.1",
