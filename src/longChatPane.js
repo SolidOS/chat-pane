@@ -50,15 +50,15 @@ export const longChatPane = {
 
   mintNew: function (context, newPaneOptions) {
     const kb = context.session.store
-    var updater = kb.updater
+    const updater = kb.updater
     if (newPaneOptions.me && !newPaneOptions.me.uri) {
       throw new Error('chat mintNew:  Invalid userid ' + newPaneOptions.me)
     }
 
-    var newInstance = (newPaneOptions.newInstance =
+    const newInstance = (newPaneOptions.newInstance =
       newPaneOptions.newInstance ||
       kb.sym(newPaneOptions.newBase + CHAT_LOCATION_IN_CONTAINER))
-    var newChatDoc = newInstance.doc()
+    const newChatDoc = newInstance.doc()
 
     kb.add(newInstance, ns.rdf('type'), ns.meeting('LongChat'), newChatDoc)
     kb.add(newInstance, ns.dc('title'), 'Chat channel', newChatDoc)
@@ -110,21 +110,21 @@ export const longChatPane = {
         }
       )
       // newChat container authenticated users Append only
-      .then((result) => {
-        return new Promise((resolve, reject) => {
-          if (newPaneOptions.me) {
-            kb.fetcher.webOperation('PUT', newPaneOptions.newBase + '.acl', {
-              data: aclBody(newPaneOptions.me, '', 'Append'),
-              contentType: 'text/turtle'
-            })
-            kb.fetcher.webOperation('PUT', newPaneOptions.newBase + 'index.ttl.acl', {
-              data: aclBody(newPaneOptions.me, 'index.ttl', 'Write'),
-              contentType: 'text/turtle'
-            })
-          }
-          resolve(newPaneOptions)
+        .then((result) => {
+          return new Promise((resolve, reject) => {
+            if (newPaneOptions.me) {
+              kb.fetcher.webOperation('PUT', newPaneOptions.newBase + '.acl', {
+                data: aclBody(newPaneOptions.me, '', 'Append'),
+                contentType: 'text/turtle'
+              })
+              kb.fetcher.webOperation('PUT', newPaneOptions.newBase + 'index.ttl.acl', {
+                data: aclBody(newPaneOptions.me, 'index.ttl', 'Write'),
+                contentType: 'text/turtle'
+              })
+            }
+            resolve(newPaneOptions)
+          })
         })
-      })
     })
   },
 
@@ -203,13 +203,14 @@ export const longChatPane = {
       const registrationArea = menuTable.appendChild(dom.createElement('tr'))
       const statusArea = menuTable.appendChild(dom.createElement('tr'))
 
-      var me = authn.currentUser()
+      const me = authn.currentUser()
       if (me) {
         await UI.login.registrationControl(
           { noun, me, statusArea, dom, div: registrationArea },
           chatChannel,
           mainClass
         )
+        // eslint-disable-next-line no-console
         console.log('Registration control finsished.')
         preferencesArea.appendChild(
           UI.preferences.renderPreferencesForm(
@@ -263,16 +264,16 @@ export const longChatPane = {
      */
 
     function renderCreationControl (refreshTarget, noun) {
-      var creationDiv = dom.createElement('div')
-      var me = authn.currentUser()
-      var creationContext = {
+      const creationDiv = dom.createElement('div')
+      const me = authn.currentUser()
+      const creationContext = {
         // folder: subject,
         div: creationDiv,
-        dom: dom,
-        noun: noun,
+        dom,
+        noun,
         statusArea: creationDiv,
-        me: me,
-        refreshTarget: refreshTarget
+        me,
+        refreshTarget
       }
       const chatPane = context.session.paneRegistry.byName('chat')
       const relevantPanes = [chatPane]
@@ -282,13 +283,13 @@ export const longChatPane = {
 
     async function renderInstances (theClass, noun) {
       const instancesDiv = dom.createElement('div')
-      var context = { dom, div: instancesDiv, noun: noun }
+      const context = { dom, div: instancesDiv, noun }
       await UI.login.registrationList(context, { public: true, private: true, type: theClass })
       instancesDiv.appendChild(renderCreationControl(instancesDiv, noun))
       return instancesDiv
     }
 
-    var otherChatsArea = null
+    let otherChatsArea = null
     async function otherChatsHandler (_event) {
       if (!otherChatsArea) { // Lazy build when needed
         // Expand
@@ -311,7 +312,7 @@ export const longChatPane = {
     //
     /* Build a participants list drawer the side
      */
-    var participantsArea
+    let participantsArea
     function participantsHandler (_event) {
       if (!participantsArea) {
         // Expand
@@ -321,7 +322,7 @@ export const longChatPane = {
         participantsArea.appendChild(panelCloseButton(participantsArea))
 
         // Record my participation and display participants
-        var me = authn.currentUser()
+        const me = authn.currentUser()
         if (!me) alert('Should be logeed in for partipants panel')
         UI.pad.manageParticipation(
           dom,
@@ -343,16 +344,18 @@ export const longChatPane = {
       }
     } // participantsHandler
 
-    var chatChannel = subject
-    var selectedMessage = null
-    var thread = null
+    let chatChannel = subject
+    let selectedMessage = null
+    let thread = null
     if (kb.holds(subject, ns.rdf('type'), ns.meeting('LongChat'))) {
       // subject is the chatChannel
+      // eslint-disable-next-line no-console
       console.log('@@@ Chat channnel')
 
       // Looks like a message -- might not havre any class declared
     } else if (kb.holds(subject, ns.rdf('type'), ns.sioc('Thread'))) {
       // subject is the chatChannel
+      // eslint-disable-next-line no-console
       console.log('Thread is subject ' + subject.uri)
       thread = subject
       const rootMessage = kb.the(null, ns.sioc('has_reply'), thread, thread.doc())
@@ -363,25 +366,26 @@ export const longChatPane = {
       kb.any(subject, ns.sioc('content')) &&
       kb.any(subject, ns.dct('created'))
     ) {
+      // eslint-disable-next-line no-console
       console.log('message is subject ' + subject.uri)
       selectedMessage = subject
       chatChannel = kb.any(null, ns.wf('message'), selectedMessage)
       if (!chatChannel) throw new Error('Message has no link to chatChannel')
     }
 
-    var div = dom.createElement('div')
+    const div = dom.createElement('div')
 
     // Three large columns for particpant, chat, Preferences.  formula below just as a note
     // const windowHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight
     const triptychHeight = '20cm' // @@ need to be able to set to  window!
-    var triptych = div.appendChild(dom.createElement('table'))
+    const triptych = div.appendChild(dom.createElement('table'))
     triptych.style.maxHeight = '12"' // Screen max
-    var paneRow = triptych.appendChild(dom.createElement('tr'))
-    var paneLeft = paneRow.appendChild(dom.createElement('td'))
-    var paneMiddle = paneRow.appendChild(dom.createElement('td'))
-    var paneThread = paneRow.appendChild(dom.createElement('td'))
-    var paneRight = paneRow.appendChild(dom.createElement('td'))
-    var paneBottom = triptych.appendChild(dom.createElement('tr'))
+    const paneRow = triptych.appendChild(dom.createElement('tr'))
+    const paneLeft = paneRow.appendChild(dom.createElement('td'))
+    const paneMiddle = paneRow.appendChild(dom.createElement('td'))
+    const paneThread = paneRow.appendChild(dom.createElement('td'))
+    const paneRight = paneRow.appendChild(dom.createElement('td'))
+    const paneBottom = triptych.appendChild(dom.createElement('tr'))
     paneLeft.style = SIDEBAR_STYLE
     paneLeft.style.paddingRight = '1em'
     paneThread.style = SIDEBAR_STYLE
@@ -395,7 +399,7 @@ export const longChatPane = {
 
     // Button to bring up participants drawer on left
     const participantsIcon = 'noun_339237.svg'
-    var participantsButton = UI.widgets.button(
+    const participantsButton = UI.widgets.button(
       dom,
       UI.icons.iconBase + participantsIcon,
       'participants ...'
@@ -405,7 +409,7 @@ export const longChatPane = {
 
     // Button to bring up otherChats drawer on left
     const otherChatsIcon = 'noun_1689339.svg' // long chat icon -- not ideal for a set of chats @@
-    var otherChatsButton = UI.widgets.button(
+    const otherChatsButton = UI.widgets.button(
       dom,
       UI.icons.iconBase + otherChatsIcon,
       'List of other chats ...'
@@ -413,7 +417,7 @@ export const longChatPane = {
     buttonCell.appendChild(otherChatsButton)
     otherChatsButton.addEventListener('click', otherChatsHandler)
 
-    var preferencesArea = null
+    let preferencesArea = null
     const menuButton = UI.widgets.button(
       dom,
       UI.icons.iconBase + SPANNER_ICON,
@@ -425,31 +429,33 @@ export const longChatPane = {
 
     div.setAttribute('class', 'chatPane')
     const options = { infinite: true }
-    const participantsHandlerContext = { noun: 'chat room', div, dom: dom }
+    const participantsHandlerContext = { noun: 'chat room', div, dom }
     participantsHandlerContext.me = authn.currentUser() // If already logged on
 
-    async function showThread(thread, options) {
-        console.log('@@@@ showThread thread ' + thread)
-        const newOptions = {} // @@@ inherit
-        newOptions.thread = thread
-        newOptions.includeRemoveButton = true
+    async function showThread (thread, options) {
+      // eslint-disable-next-line no-console
+      console.log('@@@@ showThread thread ' + thread)
+      const newOptions = {} // @@@ inherit
+      newOptions.thread = thread
+      newOptions.includeRemoveButton = true
 
-        newOptions.authorDateOnLeft = options.authorDateOnLeft
-        newOptions.newestFirst = options.newestFirst
+      newOptions.authorDateOnLeft = options.authorDateOnLeft
+      newOptions.newestFirst = options.newestFirst
 
-        paneThread.innerHTML = ''
-        console.log('Options for showThread message Area', newOptions)
+      paneThread.innerHTML = ''
+      // eslint-disable-next-line no-console
+      console.log('Options for showThread message Area', newOptions)
 
-        const chatControl = await UI.infiniteMessageArea(
-          dom,
-          kb,
-          chatChannel,
-          newOptions
-        )
-        chatControl.style.resize = 'both'
-        chatControl.style.overflow = 'auto'
-        chatControl.style.maxHeight = triptychHeight
-        paneThread.appendChild(chatControl)
+      const chatControl = await UI.infiniteMessageArea(
+        dom,
+        kb,
+        chatChannel,
+        newOptions
+      )
+      chatControl.style.resize = 'both'
+      chatControl.style.overflow = 'auto'
+      chatControl.style.maxHeight = triptychHeight
+      paneThread.appendChild(chatControl)
     }
 
     async function buildPane () {
@@ -471,9 +477,9 @@ export const longChatPane = {
         options.solo = true
       }
       if (thread) { // Rendereing a thread as first class object
-          options.thread  = thread
+        options.thread = thread
       } else { // either show thread *or* allow new threads. Threads don't nest but they could
-          options.showThread = showThread
+        options.showThread = showThread
       }
       const chatControl = await UI.infiniteMessageArea(
         dom,
@@ -486,6 +492,7 @@ export const longChatPane = {
       chatControl.style.maxHeight = triptychHeight
       paneMiddle.appendChild(chatControl)
     }
+    // eslint-disable-next-line no-console
     buildPane().then(console.log('async - chat pane built'))
     return div
   }
