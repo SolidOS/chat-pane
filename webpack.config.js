@@ -1,59 +1,74 @@
-const HtmlWebpackPlugin = require('html-webpack-plugin')
-const NodePolyfillPlugin = require('node-polyfill-webpack-plugin')
+import path from 'path'
 
-module.exports = [{
-  mode: 'development',
-  entry: './dev/index.js',
-  plugins: [
-    new HtmlWebpackPlugin({ template: './dev/index.html' }),
-    new NodePolyfillPlugin()
-  ],
-  resolve: {
-    extensions: ['.mjs', '.js', '.ts'],
-    fallback: { path: false }
-  },
-  module: {
-    rules: [
-      {
-        test: /\.(mjs|js|ts)$/,
-        exclude: /(node_modules|bower_components)/,
-        use: {
-          loader: 'babel-loader'
+const externalsBase = {
+  fs: 'null',
+  'node-fetch': 'fetch',
+  'isomorphic-fetch': 'fetch',
+  'text-encoding': 'TextEncoder',
+  '@trust/webcrypto': 'crypto'
+  // Removed @xmldom/xmldom and whatwg-url - use native browser APIs
+}
+
+export default [
+  {
+    mode: 'production',
+    entry: './src/main.js',
+    resolve: {
+      extensions: ['.js', '.ts'],
+      fallback: { path: false }
+    },
+    output: {
+      path: path.resolve(process.cwd(), 'dist'),
+      globalObject: 'this',
+      iife: true,
+      clean: false
+    },
+    module: {
+      rules: [
+        {
+          test: /\.(mjs|js|ts)$/,
+          exclude: /(node_modules|bower_components)/,
+          use: {
+            loader: 'babel-loader'
+          }
         }
-      }
-    ]
+      ]
+    },
+    externals: {
+      ...externalsBase
+    },
+    devtool: 'source-map'
   },
-  externals: {
-    fs: 'null',
-    'node-fetch': 'fetch',
-    'isomorphic-fetch': 'fetch',
-    xmldom: 'window',
-    'text-encoding': 'TextEncoder',
-    'whatwg-url': 'window',
-    '@trust/webcrypto': 'crypto'
-  },
-  devServer: {
-    static: './dist'
-  },
-  devtool: 'source-map'
-},
-{
-  mode: 'development',
-  entry: {
-    shortChatPane: './src/shortChatPane.js',
-    longChatPane: './src/longChatPane.js'
-  },
-  resolve: {
-    fallback: { path: false }
-  },
-  externals: {
-    fs: 'null',
-    'node-fetch': 'fetch',
-    'isomorphic-fetch': 'fetch',
-    xmldom: 'window',
-    'text-encoding': 'TextEncoder',
-    'whatwg-url': 'window',
-    '@trust/webcrypto': 'crypto'
-  },
-  devtool: 'source-map'
-}]
+  {
+    mode: 'production',
+    entry: {
+      shortChatPane: './src/shortChatPane.js',
+      longChatPane: './src/longChatPane.js'
+    },
+    output: {
+      path: path.resolve(process.cwd(), 'dist'),
+      globalObject: 'this',
+      iife: true,
+      clean: false
+    },
+    resolve: {
+      extensions: ['.js', '.ts'],
+      fallback: { path: false }
+    },
+    module: {
+      rules: [
+        {
+          test: /\.(mjs|js|ts)$/,
+          exclude: /(node_modules|bower_components)/,
+          use: {
+            loader: 'babel-loader'
+          }
+        }
+      ]
+    },
+    externals: {
+      ...externalsBase
+    },
+    devtool: 'source-map'
+  }
+]

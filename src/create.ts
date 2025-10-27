@@ -17,7 +17,7 @@ async function getPodRoot (me): Promise<NamedNode> {
   if (!podRoot) {
     throw new Error('Current user pod root not found!')
   }
-  return podRoot
+  return podRoot as NamedNode
 }
 
 async function sendInvite (invitee: NamedNode, chatThing: NamedNode) {
@@ -108,7 +108,7 @@ async function addToPrivateTypeIndex (chatThing, me) {
     st(reg, ns.solid('forClass'), ns.meeting('LongChat'), privateTypeIndex.doc()),
     st(reg, ns.solid('instance'), chatThing, privateTypeIndex.doc())
   ]
-  await new Promise((resolve, reject) => {
+  await new Promise<void>((resolve, reject) => {
     store.updater.update([], ins, function (_uri, ok, errm) {
       if (!ok) {
         reject(new Error(errm))
@@ -145,4 +145,5 @@ export async function getChat (invitee: NamedNode, createIfMissing = true): Prom
     await addToPrivateTypeIndex(chatThing, me)
     return chatThing
   }
+  throw new Error('Chat does not exist and createIfMissing is false')
 }

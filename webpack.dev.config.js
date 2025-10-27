@@ -1,7 +1,7 @@
-const HtmlWebpackPlugin = require('html-webpack-plugin')
-const NodePolyfillPlugin = require('node-polyfill-webpack-plugin')
+import HtmlWebpackPlugin from 'html-webpack-plugin'
+import NodePolyfillPlugin from 'node-polyfill-webpack-plugin'
 
-module.exports = [
+export default [
   {
     mode: 'development',
     entry: ['./dev/index.js'],
@@ -19,12 +19,12 @@ module.exports = [
       ],
     },
     resolve: {
-      extensions: ['*', '.js', '.ts']
+      extensions: ['.js', '.ts']
     },
 
     devServer: {
       static: './dist'
     },
     devtool: 'source-map',
-  },
+  }
 ]
