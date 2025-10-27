@@ -1,7 +1,7 @@
 import { ns, widgets } from 'solid-ui'
 import { authn, store } from 'solid-logic'
 import { NamedNode, st } from 'rdflib'
-import { longChatPane }  from './longChatPane'
+import { longChatPane } from './longChatPane'
 
 async function getMe () {
   const me = authn.currentUser()
@@ -30,7 +30,7 @@ async function sendInvite (invitee: NamedNode, chatThing: NamedNode) {
 <> a <http://www.w3.org/ns/pim/meeting#LongChatInvite> ;
 ${ns.rdf('seeAlso')} <${chatThing.value}> . 
   `
-  
+
   const inviteResponse = await store.fetcher.webOperation('POST', inviteeInbox.value, {
     data: inviteBody,
     contentType: 'text/turtle'
@@ -61,7 +61,7 @@ async function createChatThing (chatContainer, me) {
   return created.newInstance
 }
 
-async function setAcl(chatContainer, me, invitee) {
+async function setAcl (chatContainer, me, invitee) {
   // Some servers don't present a Link http response header
   // if the container doesn't exist yet, so refetch the container
   // now that it has been created:
@@ -95,7 +95,7 @@ async function setAcl(chatContainer, me, invitee) {
     contentType: 'text/turtle'
   })
 }
-async function addToPrivateTypeIndex(chatThing, me) {
+async function addToPrivateTypeIndex (chatThing, me) {
   // Add to private type index
   const privateTypeIndex = store.any(me, ns.solid('privateTypeIndex')) as NamedNode | null
   if (!privateTypeIndex) {
@@ -129,11 +129,11 @@ export async function findChat (invitee: NamedNode) {
   } catch (e) {
     exists = false
   }
-  return { me, chatContainer, exists}
+  return { me, chatContainer, exists }
 }
 
 export async function getChat (invitee: NamedNode, createIfMissing = true): Promise<NamedNode> {
-  const { me, chatContainer, exists } = await findChat (invitee)
+  const { me, chatContainer, exists } = await findChat(invitee)
   if (exists) {
     return new NamedNode(chatContainer.value + longChatPane.CHAT_LOCATION_IN_CONTAINER)
   }
