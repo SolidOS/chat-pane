@@ -6,6 +6,7 @@ export default {
         targets: {
           node: 'current',
         },
+        modules: 'cjs',
       },
     ],
     '@babel/preset-typescript',
