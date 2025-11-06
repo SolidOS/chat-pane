@@ -23,7 +23,7 @@ export default [
     },
 
     devServer: {
-      static: './dist'
+      static: './dev'
     },
     devtool: 'source-map',
   }
