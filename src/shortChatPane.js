@@ -150,9 +150,6 @@ export const shortChatPane = {
       complain('Unknown chat type')
     }
 
-    //    var context = {dom, div}
-    //    UI.authn.logIn(context).then( context => { // The widget itself sees to login
-
     div.appendChild(UI.messageArea(dom, kb, subject, messageStore, options))
     kb.updater.addDownstreamChangeListener(messageStore, function () {
       UI.widgets.refreshTree(div)
