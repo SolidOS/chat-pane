@@ -106,7 +106,7 @@ async function appendChatPane (dom, uri) {
   dom.body.appendChild(paneDiv)
 }
 
-const webIdToShow = 'https://solidos.solidcommunity.net/Team/SolidOs%20team%20chat/index.ttl#this'
+const webIdToShow = 'https://timea.solidcommunity.net/New%20chat%20example/index.ttl#this'
 
 fetcher.load(webIdToShow).then(() => {
   appendChatPane(document, webIdToShow)

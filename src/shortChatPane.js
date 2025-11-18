@@ -47,7 +47,7 @@ export const shortChatPane = {
 
   label: function (subject, context) {
     const kb = context.session.store
-    var n = kb.each(subject, ns.wf('message')).length
+    const n = kb.each(subject, ns.wf('message')).length
     if (n > 0) return 'Chat (' + n + ')' // Show how many in hover text
 
     if (kb.holds(subject, ns.rdf('type'), ns.meeting('Chat'))) {
@@ -66,20 +66,20 @@ export const shortChatPane = {
   mintNew: function (context, newPaneOptions) {
     // This deprecates the creation of short Chats after 2023-04-03.
     // The mintNew function will be removed/commented out in a few months.
-    if (!confirm('short Chat is deprecated in favor of long Chat.'
-      + '\nEmbedded chat for comments and existing short Chats will work.'
-      + '\nYou can report any issues at https://github.com/SolidOS/chat-pane ?'
-      + '\n\nDo you really want to create a new deprecated short Chat?')) return
+    if (!confirm('short Chat is deprecated in favor of long Chat.' +
+      '\nEmbedded chat for comments and existing short Chats will work.' +
+      '\nYou can report any issues at https://github.com/SolidOS/chat-pane ?' +
+      '\n\nDo you really want to create a new deprecated short Chat?')) return
     const kb = context.session.store
-    var updater = kb.updater
+    const updater = kb.updater
     if (newPaneOptions.me && !newPaneOptions.me.uri) {
       throw new Error('chat mintNew:  Invalid userid ' + newPaneOptions.me)
     }
 
-    var newInstance = (newPaneOptions.newInstance =
+    const newInstance = (newPaneOptions.newInstance =
       newPaneOptions.newInstance ||
       kb.sym(newPaneOptions.newBase + 'index.ttl#this'))
-    var newChatDoc = newInstance.doc()
+    const newChatDoc = newInstance.doc()
 
     kb.add(newInstance, ns.rdf('type'), ns.meeting('Chat'), newChatDoc)
     kb.add(newInstance, ns.dc('title'), 'Chat', newChatDoc)
@@ -109,17 +109,17 @@ export const shortChatPane = {
   render: function (subject, context) {
     const kb = context.session.store
     const dom = context.dom
-    var complain = function complain (message, color) {
-      var pre = dom.createElement('pre')
+    const complain = function complain (message, color) {
+      const pre = dom.createElement('pre')
       pre.setAttribute('style', 'background-color: ' + color || '#eed' + ';')
       div.appendChild(pre)
       pre.appendChild(dom.createTextNode(message))
     }
 
-    var div = dom.createElement('div')
+    const div = dom.createElement('div')
     div.setAttribute('class', 'chatPane')
     const options = {} // Like newestFirst
-    var messageStore
+    let messageStore
     if (kb.holds(subject, ns.rdf('type'), ns.meeting('Chat'))) {
       // subject may be the file
       messageStore = subject.doc()
@@ -130,11 +130,11 @@ export const shortChatPane = {
       kb.holds(subject, ns.rdf('type'), ns.foaf('ChatChannel'))
     ) {
       // subject is the file
-      var ircLogQuery = function () {
-        var query = new $rdf.Query('IRC log entries')
-        var v = []
-        var vv = ['chan', 'msg', 'date', 'list', 'pred', 'creator', 'content']
-        vv.map(function (x) {
+      const ircLogQuery = function () {
+        const query = new $rdf.Query('IRC log entries')
+        const v = []
+        const vv = ['chan', 'msg', 'date', 'list', 'pred', 'creator', 'content']
+        vv.forEach(function (x) {
           query.vars.push((v[x] = $rdf.variable(x)))
         })
         query.pat.add(v.chan, ns.foaf('chatEventList'), v.list) // chatEventList
@@ -149,9 +149,6 @@ export const shortChatPane = {
     } else {
       complain('Unknown chat type')
     }
-
-    //    var context = {dom, div}
-    //    UI.authn.logIn(context).then( context => { // The widget itself sees to login
 
     div.appendChild(UI.messageArea(dom, kb, subject, messageStore, options))
     kb.updater.addDownstreamChangeListener(messageStore, function () {
