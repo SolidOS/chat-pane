@@ -50,8 +50,8 @@
   "homepage": "https://github.com/solid/chat-pane",
   "peerDependencies": {
     "rdflib": "^2.3.0",
-    "solid-logic": "3.1.1-3343cc7",
-    "solid-ui": "2.6.1-c6fc7fe"
+    "solid-logic": "3.1.1-bf9b34c",
+    "solid-ui": "2.6.1-d7272f6"
   },
   "devDependencies": {
     "@babel/cli": "^7.26.4",
@@ -68,12 +68,12 @@
     "eslint": "^9.33.0",
     "globals": "^16.3.0",
     "html-webpack-plugin": "^5.6.3",
-    "jest": "^30.0.5",
+    "jest": "^29.7.0",
     "jest-environment-jsdom": "^30.0.5",
     "jest-fetch-mock": "^3.0.3",
     "neostandard": "^0.12.2",
     "node-polyfill-webpack-plugin": "^4.1.0",
-    "pane-registry": "2.5.1-ee1545f",
+    "pane-registry": "^2.5.1-f5c2189",
     "typescript": "^5.9.2",
     "webpack": "^5.101.0",
     "webpack-cli": "^6.0.1",
