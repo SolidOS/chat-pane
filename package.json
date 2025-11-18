@@ -22,7 +22,7 @@
     "prepublishOnly": "npm run build && npm run lint && npm run test",
     "preversion": "npm run lint && npm run typecheck && npm run test",
     "postpublish": "git push origin main --follow-tags",
-    "start": "webpack serve --config webpack.dev.config.js --open"
+    "start": "webpack serve --config webpack.dev.config.mjs --open"
   },
   "repository": {
     "type": "git",
@@ -51,7 +51,7 @@
   "peerDependencies": {
     "rdflib": "^2.3.0",
     "solid-logic": "3.1.1-bf9b34c",
-    "solid-ui": "2.6.1-d7272f6"
+    "solid-ui": "2.6.1-c3ff185"
   },
   "devDependencies": {
     "@babel/cli": "^7.26.4",
