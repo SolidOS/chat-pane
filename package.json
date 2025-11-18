@@ -20,7 +20,7 @@
     "test": "jest",
     "watch": "webpack --watch",
     "prepublishOnly": "npm run build && npm run lint && npm run test",
-    "preversion": "npm run lint && npm run test",
+    "preversion": "npm run lint && npm run typecheck && npm run test",
     "postpublish": "git push origin main --follow-tags",
     "start": "webpack serve --config webpack.dev.config.js --open"
   },

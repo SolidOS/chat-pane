@@ -4,9 +4,8 @@ export default {
       '@babel/preset-env',
       {
         targets: {
-          node: 'current',
-        },
-        modules: 'cjs',
+          browsers: ['> 1%', 'last 3 versions', 'not dead']
+        }
       },
     ],
     '@babel/preset-typescript',
