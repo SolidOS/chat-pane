@@ -14,8 +14,8 @@ const CHAT_LOCATION_IN_CONTAINER = 'index.ttl#this'
 // const menuIcon = 'noun_897914.svg'
 const SPANNER_ICON = 'noun_344563.svg'
 // resize: horizontal;  min-width: 20em;
-const SIDEBAR_COMPONENT_STYLE = UI.style.sidebarComponentStyle || ' padding: 0.5em; width: 100%;'
-const SIDEBAR_STYLE = UI.style.sidebarStyle || 'overflow-x: auto; overflow-y: auto; border-radius: 1em; border: 0.1em solid white;'
+const SIDEBAR_COMPONENT_STYLE = UI.style.sidebarComponentStyle || ' padding: var(--sui-space-md, 0.5em); width: 100%;'
+const SIDEBAR_STYLE = UI.style.sidebarStyle || 'overflow-x: auto; overflow-y: auto; border-radius: var(--sui-border-radius, 0.5em); border: 0.1em solid var(--sui-border-color, white);'
 // was purple border
 export const longChatPane = {
   CHAT_LOCATION_IN_CONTAINER,

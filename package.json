@@ -51,7 +51,7 @@
   "peerDependencies": {
     "rdflib": "^2.3.0",
     "solid-logic": "^4.0.0",
-    "solid-ui": "^3.0.0"
+    "solid-ui": "^3.0.1-11be53b"
   },
   "devDependencies": {
     "@babel/cli": "^7.26.4",
