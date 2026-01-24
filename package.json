@@ -26,7 +26,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/solid/chat-pane.git"
+    "url": "git+https://github.com/SolidOS/chat-pane.git"
   },
   "keywords": [
     "solid",
@@ -45,38 +45,38 @@
   "author": "Tim Berners-Lee <timbl@mit.edu>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/solid/chat-pane/issues"
+    "url": "https://github.com/SolidOS/chat-pane/issues"
   },
-  "homepage": "https://github.com/solid/chat-pane",
+  "homepage": "https://github.com/SolidOS/chat-pane",
   "peerDependencies": {
-    "rdflib": "^2.3.0",
-    "solid-logic": "^4.0.0",
-    "solid-ui": "^3.0.0"
+    "rdflib": "^2.3.5",
+    "solid-logic": "^4.0.2",
+    "solid-ui": "^3.0.3"
   },
   "devDependencies": {
-    "@babel/cli": "^7.26.4",
-    "@babel/core": "^7.28.0",
-    "@babel/preset-env": "^7.28.0",
-    "@babel/preset-typescript": "^7.27.1",
+    "@babel/cli": "^7.28.6",
+    "@babel/core": "^7.28.6",
+    "@babel/preset-env": "^7.28.6",
+    "@babel/preset-typescript": "^7.28.5",
     "@testing-library/dom": "^10.4.1",
-    "@testing-library/jest-dom": "^6.8.0",
+    "@testing-library/jest-dom": "^6.9.1",
     "@types/jest": "^30.0.0",
-    "@typescript-eslint/parser": "^8.46.2",
-    "babel-jest": "^30.0.5",
+    "@typescript-eslint/parser": "^8.53.1",
+    "babel-jest": "^30.2.0",
     "babel-loader": "^10.0.0",
     "buffer": "^6.0.3",
-    "eslint": "^9.33.0",
-    "globals": "^17.0.0",
-    "html-webpack-plugin": "^5.6.3",
+    "eslint": "^9.39.2",
+    "globals": "^17.1.0",
+    "html-webpack-plugin": "^5.6.6",
     "jest": "^30.2.0",
-    "jest-environment-jsdom": "^30.0.5",
+    "jest-environment-jsdom": "^30.2.0",
     "jest-fetch-mock": "^3.0.3",
     "neostandard": "^0.12.2",
     "node-polyfill-webpack-plugin": "^4.1.0",
-    "pane-registry": "^3.0.0",
-    "typescript": "^5.9.2",
-    "webpack": "^5.101.0",
+    "pane-registry": "^3.0.1",
+    "typescript": "^5.9.3",
+    "webpack": "^5.104.1",
     "webpack-cli": "^6.0.1",
-    "webpack-dev-server": "^5.2.2"
+    "webpack-dev-server": "^5.2.3"
   }
 }
