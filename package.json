@@ -26,7 +26,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/solid/chat-pane.git"
+    "url": "git+https://github.com/SolidOS/chat-pane.git"
   },
   "keywords": [
     "solid",
