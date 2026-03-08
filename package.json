@@ -50,7 +50,7 @@
   "homepage": "https://github.com/SolidOS/chat-pane",
   "peerDependencies": {
     "rdflib": "^2.3.5",
-    "solid-logic": "^4.0.2",
+    "solid-logic": "^4.0.4",
     "solid-ui": "^3.0.3"
   },
   "devDependencies": {
