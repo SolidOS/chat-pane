@@ -5,34 +5,44 @@ import { longChatPane } from '../src/longChatPane.js'
 import { getChat } from '../src/create.ts'
 import { context, fetcher } from './context'
 
+window.$rdf = $rdf
+window.UI = UI
+
 const loginBanner = document.getElementById('loginBanner')
 const webId = document.getElementById('webId')
+const chatUriInput = document.getElementById('chatUri')
+const loadChatButton = document.getElementById('loadChat')
+const currentChatDiv = document.getElementById('currentChat')
+const menuContainer = document.getElementById('menu')
+const chatPaneContainer = document.getElementById('chatPane')
 
 loginBanner.appendChild(UI.login.loginStatusBox(document, null, {}))
 
 async function finishLogin () {
   await authSession.handleIncomingRedirect()
+  // Clear fetch auth metadata cached before login (often read-only WAC-Allow from anonymous requests).
+  // Without this, updater.editable() can stay false even when the user can PATCH after authentication.
+  store.updater.flagAuthorizationMetadata(store)
   const session = authSession
   if (session.info.isLoggedIn) {
+    const me = authn.currentUser()
     // Update the page with the status.
-    webId.innerHTML = 'Logged in as: ' + authn.currentUser().uri
+    webId.innerHTML = 'Logged in as: ' + me.uri
   } else {
     webId.innerHTML = ''
   }
 }
 
-finishLogin()
-
 const menuDiv = document.createElement('div')
 
 async function renderMenuDiv () {
-  console.log('get invites list')
   menuDiv.innerHTML = await getInvitesList()
-  console.log('get chats list')
-  menuDiv.innerHTML += await getChatsList()
 }
 
 window.followLink = async function (from, follow, multiple) {
+  if (!from || !follow) {
+    return multiple ? [] : null
+  }
   const subject = $rdf.sym(from)
   const doc = subject.doc()
   await new Promise((resolve, reject) => {
@@ -42,19 +52,12 @@ window.followLink = async function (from, follow, multiple) {
   if (multiple) {
     return store.each(subject, predicate).map(n => n.value)
   }
-  return store.any(subject, predicate).value
+  const value = store.any(subject, predicate)
+  return value ? value.value : null
 }
 
 function toLi (uri) {
   return `<li><a href="?#${encodeURIComponent(uri)}">${uri}</a></li>`
-}
-
-async function getChatsList () {
-  const { instances } = await UI.login.findAppInstances({}, $rdf.sym('http://www.w3.org/ns/pim/meeting#LongChat'))
-  return `<h2>Your chats:
-<ul>
-  ${instances.map(n => n.value).map(toLi)}
-</ul>`
 }
 
 window.inviteSomeone = async function () {
@@ -66,7 +69,13 @@ window.inviteSomeone = async function () {
 
 async function getInvitesList () {
   const webId = authSession.webId
+  if (!webId) {
+    return '<h2>Your Invites:</h2><p>Log in to load invites.</p>'
+  }
   const globalInbox = await window.followLink(webId, UI.ns.ldp('inbox'))
+  if (!globalInbox) {
+    return '<h2>Your Invites:</h2><p>No inbox found.</p>'
+  }
   const inboxItems = await window.followLink(globalInbox, UI.ns.ldp('contains'), true)
   const invites = []
   const promises = inboxItems.map(async x => {
@@ -74,7 +83,6 @@ async function getInvitesList () {
       const inboxMsgTypes = await window.followLink(x, UI.ns.rdf('type'), true)
       const isLongChatInvite = (inboxMsgTypes.indexOf('http://www.w3.org/ns/pim/meeting#LongChatInvite') !== -1)
       if (isLongChatInvite) {
-        console.log('new chat!', x)
         const chatUrl = await window.followLink(x, UI.ns.rdf('seeAlso'))
         invites.push(chatUrl)
       }
@@ -90,7 +98,7 @@ async function getInvitesList () {
   Invite someone: <input id="invitee"><button onclick="inviteSomeone()">Send Invite</button>`
 }
 
-async function appendChatPane (dom, uri) {
+async function appendChatPane (uri) {
   const subject = $rdf.sym(uri)
   const doc = subject.doc()
 
@@ -99,15 +107,60 @@ async function appendChatPane (dom, uri) {
   })
 
   const options = {}
-  renderMenuDiv()
-  dom.body.appendChild(menuDiv)
-  console.log('chat', subject)
+  if (authSession.webId) {
+    renderMenuDiv()
+  } else {
+    menuDiv.innerHTML = '<p>Log in to load invites and chats.</p>'
+  }
+  menuContainer.innerHTML = ''
+  menuContainer.appendChild(menuDiv)
   const paneDiv = longChatPane.render(subject, context, options)
-  dom.body.appendChild(paneDiv)
+  chatPaneContainer.innerHTML = ''
+  chatPaneContainer.appendChild(paneDiv)
 }
 
-const webIdToShow = 'https://timea.solidcommunity.net/New%20chat%20example/index.ttl#this'
+const defaultChatUri = 'https://bourgeoa.pivot-test.solidproject.org:3000/public/longChat/index.ttl#this'
 
-fetcher.load(webIdToShow).then(() => {
-  appendChatPane(document, webIdToShow)
+function getInitialChatUri () {
+  const hashUri = decodeURIComponent(window.location.hash.slice(1))
+  return hashUri || defaultChatUri
+}
+
+function showCurrentChat (uri) {
+  currentChatDiv.innerHTML = `Current chat: <a href="${uri}" target="_blank" rel="noopener noreferrer">${uri}</a>`
+}
+
+async function loadChatUri (uri) {
+  if (!uri) return
+  const trimmedUri = uri.trim()
+  if (!trimmedUri) return
+  chatUriInput.value = trimmedUri
+  window.location.hash = encodeURIComponent(trimmedUri)
+  showCurrentChat(trimmedUri)
+  await fetcher.load(trimmedUri)
+  await appendChatPane(trimmedUri)
+}
+
+loadChatButton.addEventListener('click', () => {
+  loadChatUri(chatUriInput.value).catch(err => {
+    console.error('Failed to load chat URI', err)
+  })
+})
+
+chatUriInput.addEventListener('keydown', event => {
+  if (event.key === 'Enter') {
+    loadChatUri(chatUriInput.value).catch(err => {
+      console.error('Failed to load chat URI', err)
+    })
+  }
+})
+
+const initialUri = getInitialChatUri()
+chatUriInput.value = initialUri
+// Load the first chat only after login redirect handling, so initial HTTP metadata is fetched
+// in authenticated context and editable() does not get stuck with stale anonymous permissions.
+finishLogin().then(() => {
+  loadChatUri(initialUri).catch(err => {
+    console.error('Failed to initialize chat pane', err)
+  })
 })
