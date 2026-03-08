@@ -1,5 +1,6 @@
 import HtmlWebpackPlugin from 'html-webpack-plugin'
 import NodePolyfillPlugin from 'node-polyfill-webpack-plugin'
+import webpack from 'webpack'
 
 export default [
   {
@@ -7,7 +8,11 @@ export default [
     entry: ['./dev/index.js'],
     plugins: [
       new HtmlWebpackPlugin({ template: './dev/index.html' }),
-      new NodePolyfillPlugin()
+      new NodePolyfillPlugin(),
+      new webpack.ProvidePlugin({
+        $rdf: 'rdflib',
+        UI: 'solid-ui'
+      })
     ],
     module: {
       rules: [
