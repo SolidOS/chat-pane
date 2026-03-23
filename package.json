@@ -1,6 +1,6 @@
 {
   "name": "chat-pane",
-  "version": "3.0.2",
+  "version": "3.0.3",
   "description": "Solid-compatible Panes: Chat",
   "main": "dist/main.js",
   "files": [
