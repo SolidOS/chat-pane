@@ -74,7 +74,7 @@
     "neostandard": "^0.13.0",
     "node-polyfill-webpack-plugin": "^4.1.0",
     "pane-registry": "^3.0.1",
-    "typescript": "^5.9.3",
+    "typescript": "^6.0.2",
     "webpack": "^5.104.1",
     "webpack-cli": "^7.0.0",
     "webpack-dev-server": "^5.2.3"
