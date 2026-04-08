@@ -1,0 +1,318 @@
+# Platform ontologies:
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh:     <http://www.w3.org/ns/shacl#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+
+# Domain ontologies
+@prefix dc:     <http://purl.org/dc/elements/1.1/> .
+@prefix dct:    <http://purl.org/dc/terms/> .
+@prefix flow:   <http://www.w3.org/2005/01/wf/flow#> .
+@prefix foaf:   <http://xmlns.com/foaf/0.1/> .
+@prefix ical:   <http://www.w3.org/2002/12/cal/ical#> .
+@prefix mee:    <http://www.w3.org/ns/pim/meeting#> .
+@prefix schema: <https://schema.org/> .
+@prefix schema_http: <http://schema.org/> .
+@prefix sec:    <https://w3id.org/security#> .
+@prefix sioc:   <http://rdfs.org/sioc/ns#> .
+@prefix solid:  <http://www.w3.org/ns/solid/terms#> .
+@prefix ui:     <http://www.w3.org/ns/ui#> .
+
+@prefix : <#> .
+
+<> rdfs:comment """This is a shape file for Solid Long Chat.
+
+It starts from the older chat-shapes.ttl model, but reflects the current
+long chat implementation in solid-ui/src/chat:
+
+Companion examples live alongside this file:
+- longchat-example.ttl shows a self-contained channel with replies, replacement, and deletion
+- longchat-dated-chat-example.ttl shows the dated chat-file view plus action nodes
+
+- channel metadata is stored on index.ttl#this
+- messages are stored in YYYY/MM/DD/chat.ttl
+- messages are signed with sec:proofValue
+- current implementation signs the core message fields id, created, content, and maker
+- current implementation does not sign replacement/thread/deletion metadata directly
+- edits and deletes are append-only and linked with dct:isReplacedBy
+- deleted messages are represented as replacement messages carrying schema:dateDeleted
+- both http://schema.org/ and https://schema.org/ are accepted for compatibility
+- replies are organized with sioc:Thread, sioc:has_reply, and sioc:has_member
+
+This shape file focuses on the RDF structure. It documents, but does not try
+to validate, the concrete YYYY/MM/DD/chat.ttl path convention.""" .
+
+
+##################### Chat channel
+
+:LongChatChannelShape a sh:NodeShape ;
+  sh:targetClass mee:LongChat ;
+  sh:property
+
+  [ sh:path rdf:type ;
+    sh:value mee:LongChat ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ],
+
+  [ sh:path dc:author ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ],
+
+  [ sh:path dc:title ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ],
+
+  [ sh:path dc:created ;
+    sh:datatype xsd:dateTime ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ],
+
+  [ sh:path ui:sharedPreferences ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:node :LongChatSharedPreferencesShape ],
+
+  [ sh:path flow:participation ;
+    sh:minCount 0 ;
+    sh:node :LongChatParticipationShape ],
+
+  [ sh:path flow:message ;
+    sh:minCount 0 ;
+    sh:node :LongChatMessageShape ] .
+
+
+##################### Shared preferences
+
+:LongChatSharedPreferencesShape a sh:NodeShape ;
+  sh:targetObjectsOf ui:sharedPreferences ;
+
+  sh:property [
+    sh:path solid:expandImagesInline ;
+    sh:datatype xsd:boolean ;
+    sh:maxCount 1 ;
+  ] ;
+
+  sh:property [
+    sh:path solid:inlineImageHeightEms ;
+    sh:datatype xsd:integer ;
+    sh:maxCount 1 ;
+  ] ;
+
+  sh:property [
+    sh:path solid:newestFirst ;
+    sh:datatype xsd:boolean ;
+    sh:maxCount 1 ;
+  ] .
+
+
+##################### Participation objects
+
+:LongChatParticipationShape a sh:NodeShape ;
+  sh:targetObjectsOf flow:participation ;
+
+  sh:property [
+    sh:path ical:dtstart ;
+    sh:datatype xsd:dateTime ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] ;
+
+  sh:property [
+    sh:path flow:participant ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] ;
+
+  sh:property [
+    sh:path solid:colorizeByAuthor ;
+    sh:datatype xsd:boolean ;
+    sh:maxCount 1 ;
+  ] ;
+
+  sh:property [
+    sh:path solid:expandImagesInline ;
+    sh:datatype xsd:boolean ;
+    sh:maxCount 1 ;
+  ] ;
+
+  sh:property [
+    sh:path solid:inlineImageHeightEms ;
+    sh:datatype xsd:integer ;
+    sh:maxCount 1 ;
+  ] ;
+
+  sh:property [
+    sh:path solid:newestFirst ;
+    sh:datatype xsd:boolean ;
+    sh:maxCount 1 ;
+  ] ;
+
+  sh:property [
+    sh:path ui:backgroundColor ;
+    sh:datatype xsd:string ;
+    sh:maxCount 1 ;
+    sh:pattern "#[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]" ;
+  ] .
+
+
+##################### Messages
+
+:LongChatMessageShape a sh:NodeShape ;
+  sh:targetObjectsOf flow:message ;
+  sh:targetObjectsOf sioc:has_member ;
+  sh:targetObjectsOf dct:isReplacedBy ;
+
+  sh:property [
+    sh:path dct:created ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:dateTime ;
+  ] ;
+
+  sh:property [
+    sh:path foaf:maker ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] ;
+
+  sh:property [
+    sh:path sioc:content ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] ;
+
+  # sec:proofValue represents the canonical message signature.
+  # Current long chat implementations sign the message identifier together
+  # with created/content/maker, but do not directly sign reply/replacement/
+  # deletion links represented elsewhere in the graph.
+  sh:property [
+    sh:path sec:proofValue ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] ;
+
+  sh:property [
+    sh:path sioc:has_reply ;
+    sh:maxCount 1 ;
+    sh:node :LongChatThreadShape ;
+  ] ;
+
+  sh:property [
+    sh:path dct:isReplacedBy ;
+    sh:maxCount 1 ;
+    sh:node :LongChatMessageShape ;
+  ] ;
+
+  sh:property [
+    sh:path [ sh:alternativePath ( schema:dateDeleted schema_http:dateDeleted ) ] ;
+    sh:datatype xsd:dateTime ;
+    sh:maxCount 1 ;
+  ] ;
+
+  sh:or (
+    [ sh:property [
+        sh:path [ sh:inversePath flow:message ] ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+      ] ]
+    [ sh:property [
+        sh:path [ sh:inversePath sioc:has_member ] ;
+        sh:minCount 1 ;
+      ] ]
+    [ sh:property [
+        sh:path [ sh:inversePath dct:isReplacedBy ] ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+      ] ]
+  ) .
+
+
+##################### Replacement chains
+
+:AppendOnlyMessageVersionShape a sh:NodeShape ;
+  sh:targetSubjectsOf dct:isReplacedBy ;
+
+  sh:property [
+    sh:path dct:isReplacedBy ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:node :LongChatMessageShape ;
+  ] .
+
+
+##################### Deleted messages
+
+:DeletedLongChatMessageShape a sh:NodeShape ;
+  sh:targetSubjectsOf schema:dateDeleted ;
+  sh:targetSubjectsOf schema_http:dateDeleted ;
+
+  sh:property [
+    sh:path [ sh:alternativePath ( schema:dateDeleted schema_http:dateDeleted ) ] ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:dateTime ;
+  ] ;
+
+  sh:property [
+    sh:path [ sh:inversePath dct:isReplacedBy ] ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] .
+
+
+##################### Threads
+
+:LongChatThreadShape a sh:NodeShape ;
+  sh:targetObjectsOf sioc:has_reply ;
+  sh:targetSubjectsOf sioc:has_member ;
+
+  sh:property [
+    sh:path rdf:type ;
+    sh:value sioc:Thread ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] ;
+
+  sh:property [
+    sh:path [ sh:inversePath sioc:has_reply ] ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:node :LongChatMessageShape ;
+  ] ;
+
+  sh:property [
+    sh:path sioc:has_member ;
+    sh:minCount 0 ;
+    sh:node :LongChatMessageShape ;
+  ] .
+
+
+##################### Actions express sentiments
+
+:LongChatActionShape a sh:NodeShape ;
+  sh:targetSubjectsOf schema:target ;
+  sh:targetSubjectsOf schema_http:target ;
+
+  sh:property [
+    sh:path rdf:type ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] ;
+
+  sh:property [
+    sh:path [ sh:alternativePath ( schema:agent schema_http:agent ) ] ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] ;
+
+  sh:property [
+    sh:path [ sh:alternativePath ( schema:target schema_http:target ) ] ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ] .
+
+
+# ends

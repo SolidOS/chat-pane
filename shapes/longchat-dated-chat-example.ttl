@@ -1,0 +1,43 @@
+@prefix dct:    <http://purl.org/dc/terms/> .
+@prefix foaf:   <http://xmlns.com/foaf/0.1/> .
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix schema: <https://schema.org/> .
+@prefix schema_http: <http://schema.org/> .
+@prefix sec:    <https://w3id.org/security#> .
+@prefix sioc:   <http://rdfs.org/sioc/ns#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+
+@prefix : <#> .
+
+<> dct:title "Companion dated-file example for longchat-shapes.ttl" .
+
+# This example represents the contents of a dated long-chat file such as
+# YYYY/MM/DD/chat.ttl. It complements longchat-example.ttl by focusing on the
+# message graph itself and on schema.org action nodes.
+
+:Msg100
+  sioc:content "Base message in dated chat file" ;
+  dct:created "2026-04-07T11:00:00Z"^^xsd:dateTime ;
+  foaf:maker :alice ;
+  sec:proofValue "sig-msg-100" ;
+  sioc:has_reply :Msg100-thread .
+
+:Msg101
+  sioc:content "Thread reply in dated chat file" ;
+  dct:created "2026-04-07T11:01:00Z"^^xsd:dateTime ;
+  foaf:maker :bob ;
+  sec:proofValue "sig-msg-101" .
+
+:Msg100-thread
+  a sioc:Thread ;
+  sioc:has_member :Msg101 .
+
+:Like100
+  a schema:LikeAction ;
+  schema:agent :bob ;
+  schema:target :Msg100 .
+
+:Agree101
+  a schema_http:AgreeAction ;
+  schema_http:agent :alice ;
+  schema_http:target :Msg101 .
