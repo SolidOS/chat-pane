@@ -25,6 +25,10 @@
 It starts from the older chat-shapes.ttl model, but reflects the current
 long chat implementation in solid-ui/src/chat:
 
+Companion examples live alongside this file:
+- longchat-example.ttl shows a self-contained channel with replies, replacement, and deletion
+- longchat-dated-chat-example.ttl shows the dated chat-file view plus action nodes
+
 - channel metadata is stored on index.ttl#this
 - messages are stored in YYYY/MM/DD/chat.ttl
 - messages are signed with sec:proofValue
@@ -179,6 +183,10 @@ to validate, the concrete YYYY/MM/DD/chat.ttl path convention.""" .
     sh:maxCount 1 ;
   ] ;
 
+  # sec:proofValue represents the canonical message signature.
+  # Current long chat implementations sign the message identifier together
+  # with created/content/maker, but do not directly sign reply/replacement/
+  # deletion links represented elsewhere in the graph.
   sh:property [
     sh:path sec:proofValue ;
     sh:datatype xsd:string ;

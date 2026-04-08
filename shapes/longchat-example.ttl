@@ -17,6 +17,8 @@
 <> dc:title "Minimal example data for longchat-shapes.ttl" .
 
 # This example is intentionally self-contained in one Turtle file.
+# See also longchat-dated-chat-example.ttl for a companion example that
+# focuses on dated chat-file contents and schema.org action nodes.
 # Real longchat deployments keep channel metadata in index.ttl#this and
 # messages in dated files like YYYY/MM/DD/chat.ttl.
 
