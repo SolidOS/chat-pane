@@ -152,7 +152,7 @@ to validate, the concrete YYYY/MM/DD/chat.ttl path convention.""" .
     sh:path ui:backgroundColor ;
     sh:datatype xsd:string ;
     sh:maxCount 1 ;
-    sh:pattern "#[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]" ;
+    sh:pattern "^#[0-9A-Fa-f]{6}$" ;
   ] .
 
 
@@ -279,7 +279,6 @@ to validate, the concrete YYYY/MM/DD/chat.ttl path convention.""" .
   sh:property [
     sh:path [ sh:inversePath sioc:has_reply ] ;
     sh:minCount 1 ;
-    sh:maxCount 1 ;
     sh:node :LongChatMessageShape ;
   ] ;
 
