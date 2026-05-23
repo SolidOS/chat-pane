@@ -107,7 +107,7 @@ async function addToPrivateTypeIndex (chatThing, me) {
     st(reg, ns.rdf('type'), ns.solid('TypeRegistration'), privateTypeIndex.doc()),
     st(reg, ns.solid('forClass'), ns.meeting('LongChat'), privateTypeIndex.doc()),
     st(reg, ns.solid('instance'), chatThing, privateTypeIndex.doc())
-  ]
+  ] as any
   await new Promise<void>((resolve, reject) => {
     store.updater.update([], ins, function (_uri, ok, errm) {
       if (!ok) {
@@ -119,7 +119,7 @@ async function addToPrivateTypeIndex (chatThing, me) {
   })
 }
 
-export async function findChat (invitee: NamedNode) {
+export async function findChat (invitee: NamedNode): Promise<{ me: any, chatContainer: NamedNode, exists: boolean }> {
   const me = await getMe()
   const podRoot = await getPodRoot(me)
   const chatContainer = determineChatContainer(invitee, podRoot)
