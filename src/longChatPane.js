@@ -5,6 +5,7 @@
 import { authn } from 'solid-logic'
 import * as UI from 'solid-ui'
 import * as $rdf from 'rdflib'
+import { renderPreferencesForm } from './preferences'
 const ns = UI.ns
 
 const mainClass = ns.meeting('LongChat') // @@ something from SIOC?
@@ -213,7 +214,7 @@ export const longChatPane = {
         // eslint-disable-next-line no-console
         console.log('Registration control finsished.')
         preferencesArea.appendChild(
-          UI.preferences.renderPreferencesForm(
+          renderPreferencesForm(
             chatChannel,
             mainClass,
             preferencesForm,
