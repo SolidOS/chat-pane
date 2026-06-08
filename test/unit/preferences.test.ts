@@ -1,5 +1,4 @@
 import { sym } from 'rdflib'
-import * as UI from 'solid-ui'
 import { renderPreferencesForm } from '../../src/preferences'
 import { JSDOM } from 'jsdom'
 
