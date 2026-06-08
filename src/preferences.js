@@ -55,6 +55,8 @@ export function renderPreferencesForm (subject, theClass, preferencesForm, conte
             UI.widgets.complain(context, err)
           }
         )
+      }).catch(err => {
+        UI.widgets.complain(context, err)
       })
     },
     err => {
