@@ -60,7 +60,7 @@ export function renderPreferencesForm (subject, theClass, preferencesForm, conte
       })
     },
     err => {
-      // parp object fails
+      // participation object fails
       prefContainer.appendChild(UI.widgets.errorMessageBlock(context.dom, err))
     }
   )
