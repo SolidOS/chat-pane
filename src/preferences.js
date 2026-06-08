@@ -21,7 +21,7 @@ export function renderPreferencesForm (subject, theClass, preferencesForm, conte
         }
       )
 
-      heading('Everyone\'s  view of this ' + context.noun)
+      heading('Everyone\'s view of this ' + context.noun)
       UI.preferences.recordSharedPreferences(subject, context).then(context => {
         const sharedPreferences = context.sharedPreferences
         UI.widgets.appendForm(
