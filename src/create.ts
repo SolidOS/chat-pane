@@ -109,7 +109,7 @@ async function addToPrivateTypeIndex (chatThing, me) {
     st(reg, ns.solid('instance'), chatThing, privateTypeIndex.doc())
   ]
   await new Promise<void>((resolve, reject) => {
-    store.updater.update([], ins, function (_uri, ok, errm) {
+    store.updater.update([], ins as any, function (_uri, ok, errm) {
       if (!ok) {
         reject(new Error(errm))
       } else {
@@ -119,7 +119,7 @@ async function addToPrivateTypeIndex (chatThing, me) {
   })
 }
 
-export async function findChat (invitee: NamedNode) {
+export async function findChat (invitee: NamedNode): Promise<{ me: NamedNode; chatContainer: NamedNode; exists: boolean }> {
   const me = await getMe()
   const podRoot = await getPodRoot(me)
   const chatContainer = determineChatContainer(invitee, podRoot)
