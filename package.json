@@ -1,6 +1,6 @@
 {
   "name": "chat-pane",
-  "version": "3.0.3",
+  "version": "3.0.4-0",
   "description": "Solid-compatible Panes: Chat",
   "main": "dist/main.js",
   "files": [
@@ -50,8 +50,8 @@
   "homepage": "https://github.com/SolidOS/chat-pane",
   "peerDependencies": {
     "rdflib": "^2.3.6",
-    "solid-logic": "^4.0.6",
-    "solid-ui": "^3.0.5"
+    "solid-logic": "^4.0.8-test.0",
+    "solid-ui": "^3.1.3-0"
   },
   "devDependencies": {
     "@babel/cli": "^7.28.6",
@@ -73,10 +73,13 @@
     "jest-fetch-mock": "^3.0.3",
     "neostandard": "^0.13.0",
     "node-polyfill-webpack-plugin": "^4.1.0",
-    "pane-registry": "^3.0.1",
+    "pane-registry": "^3.1.2-test.0",
     "typescript": "^5.9.3",
     "webpack": "^5.104.1",
     "webpack-cli": "^7.0.0",
     "webpack-dev-server": "^5.2.3"
+  },
+  "dependencies": {
+    "patch-package": "^8.0.1"
   }
 }
