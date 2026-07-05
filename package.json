@@ -81,8 +81,6 @@
   },
   "solidosDependencies": [
     "solid-ui",
-    "pane-registry",
-    "solid-logic",
-    "rdflib"
+    "pane-registry"
   ]
 }
