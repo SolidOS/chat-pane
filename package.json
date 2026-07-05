@@ -82,7 +82,6 @@
   },
   "solidosDependencies": [
     "solid-ui",
-    "pane-registry",
-    "solid-logic"
+    "pane-registry"
   ]
 }
