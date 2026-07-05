@@ -80,6 +80,9 @@
     "solid-ui": "^3.1.3-9"
   },
   "solidosDependencies": [
-    "solid-ui"
+    "solid-ui",
+    "pane-registry",
+    "solid-logic",
+    "rdflib"
   ]
 }
