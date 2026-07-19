@@ -70,7 +70,8 @@ describe('longChatPane.mintNew', () => {
     const statementsMatching = vi.fn(() => [])
     const updater = {
       put: vi.fn((_doc: NamedNode, _statements: unknown[], _contentType: string, callback: Function) => {
-        callback('uri', true, '')
+        const savedUri = 'uri'
+        callback(savedUri, true, '')
         return Promise.resolve()
       })
     }

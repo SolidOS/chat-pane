@@ -65,7 +65,7 @@ vi.mock('../src/longChatPane', () => ({
   longChatPane: mocks.longChatPane
 }))
 
-import { findChat, getChat } from '../src/create'
+import { getChat } from '../src/create'
 
 describe('create.ts', () => {
   const me = sym('https://example.com/profile/card#me')
@@ -84,7 +84,10 @@ describe('create.ts', () => {
     mocks.authn.currentUser.mockReturnValue(me)
     mocks.widgets.newThing.mockReturnValue(reg)
     mocks.longChatPane.mintNew.mockResolvedValue({ newInstance: chatThing })
-    mocks.store.updater.update.mockImplementation((_del: unknown, _ins: unknown, cb: Function) => cb('uri', true, ''))
+    mocks.store.updater.update.mockImplementation((_del: unknown, _ins: unknown, cb: Function) => {
+      const savedUri = 'uri'
+      cb(savedUri, true, '')
+    })
     mocks.store.fetcher.webOperation.mockReset()
     mocks.store.fetcher.load.mockReset()
     mocks.store.any.mockReset()
@@ -121,7 +124,7 @@ describe('create.ts', () => {
       if (node.uri === chatContainer.value) return {}
       if (node.uri === privateTypeIndex.uri) return {}
       if (node.uri === existingChat.uri) {
-        throw { response: { status: 404 } }
+        throw new Error('404 Not Found')
       }
       return {}
     })

@@ -5,6 +5,7 @@
 import { authn } from 'solid-logic'
 import * as UI from 'solid-ui'
 import * as $rdf from 'rdflib'
+import { log } from './debug'
 const ns = UI.ns
 
 const mainClass = ns.meeting('LongChat') // @@ something from SIOC?
@@ -238,8 +239,8 @@ export const longChatPane = {
           chatChannel,
           mainClass
         )
-        // eslint-disable-next-line no-console
-        console.log('Registration control finsished.')
+
+        log('Registration control finsished.')
         preferencesArea.appendChild(
           UI.preferences.renderPreferencesForm(
             chatChannel,
@@ -391,14 +392,14 @@ export const longChatPane = {
     let thread: $rdf.NamedNode | null = null
     if (kb.holds(subject, ns.rdf('type'), ns.meeting('LongChat'))) {
       // subject is the chatChannel
-      // eslint-disable-next-line no-console
-      console.log('@@@ Chat channnel')
+
+      log('@@@ Chat channnel')
 
       // Looks like a message -- might not havre any class declared
     } else if (kb.holds(subject, ns.rdf('type'), ns.sioc('Thread'))) {
       // subject is the chatChannel
-      // eslint-disable-next-line no-console
-      console.log('Thread is subject ' + subject.uri)
+
+      log('Thread is subject ' + subject.uri)
       thread = subject
       const threadNode = subject
       const rootMessage = kb.the(null, ns.sioc('has_reply'), threadNode, threadNode.doc())
@@ -409,8 +410,7 @@ export const longChatPane = {
       kb.any(subject, ns.sioc('content')) &&
       kb.any(subject, ns.dct('created'))
     ) {
-      // eslint-disable-next-line no-console
-      console.log('message is subject ' + subject.uri)
+      log('message is subject ' + subject.uri)
       selectedMessage = subject
       chatChannel = kb.any(null, ns.wf('message'), selectedMessage)
       if (!chatChannel) throw new Error('Message has no link to chatChannel')
@@ -480,8 +480,7 @@ export const longChatPane = {
     }
 
     async function showThread (thread: $rdf.NamedNode, options: InfiniteMessageAreaOptions) {
-      // eslint-disable-next-line no-console
-      console.log('@@@@ showThread thread ' + thread)
+      log('@@@@ showThread thread ' + thread)
       const newOptions: InfiniteMessageAreaOptions = { infinite: true } // @@@ inherit
       newOptions.thread = thread
       newOptions.includeRemoveButton = true
@@ -490,8 +489,8 @@ export const longChatPane = {
       newOptions.newestFirst = options.newestFirst
 
       paneThread.innerHTML = ''
-      // eslint-disable-next-line no-console
-      console.log('Options for showThread message Area', newOptions)
+
+      log('Options for showThread message Area', newOptions)
 
       const chatControl = await UI.infiniteMessageArea(
         dom,
@@ -539,8 +538,8 @@ export const longChatPane = {
       chatControl.style.maxHeight = triptychHeight
       paneMiddle.appendChild(chatControl)
     }
-    // eslint-disable-next-line no-console
-    buildPane().then(() => console.log('async - chat pane built'))
+
+    buildPane().then(() => log('async - chat pane built'))
     return div
   }
 }
