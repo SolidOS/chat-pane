@@ -11,6 +11,34 @@ const mainClass = ns.meeting('LongChat') // @@ something from SIOC?
 
 const CHAT_LOCATION_IN_CONTAINER = 'index.ttl#this'
 
+interface CreationContext {
+  div: HTMLElement
+  dom: Document
+  noun: string
+  statusArea: HTMLElement
+  me: $rdf.NamedNode
+  refreshTarget?: HTMLTableElement
+}
+
+interface ParticipantsHandlerContext {
+  noun: string
+  div: HTMLElement
+  dom: Document
+  me?: $rdf.NamedNode | null
+}
+
+interface InfiniteMessageAreaOptions {
+  infinite: boolean
+  selectedMessage?: $rdf.NamedNode | null
+  solo?: boolean
+  thread?: $rdf.NamedNode | null
+  showThread?: (thread: $rdf.NamedNode, options: InfiniteMessageAreaOptions) => Promise<void>
+  authorDateOnLeft?: boolean
+  newestFirst?: boolean
+  includeRemoveButton?: boolean
+  [key: string]: unknown
+}
+
 // const menuIcon = 'noun_897914.svg'
 const SPANNER_ICON = 'noun_344563.svg'
 // resize: horizontal;  min-width: 20em;
@@ -249,12 +277,14 @@ export const longChatPane = {
         // Expand
         preferencesArea = await renderPreferencesSidebar({ dom, noun: 'chat room' })
       }
-      if (paneRight.contains(preferencesArea)) {
+      const area = preferencesArea as HTMLElement | null
+      if (!area) return
+      if (paneRight.contains(area)) {
         // Close menu  (hide or delete??)
-        preferencesArea.parentNode.removeChild(preferencesArea)
+        area.remove()
         preferencesArea = null
       } else {
-        paneRight.appendChild(preferencesArea)
+        paneRight.appendChild(area)
       }
     } // preferencesButtonPressed
 
@@ -266,6 +296,9 @@ export const longChatPane = {
     function renderCreationControl (refreshTarget, noun) {
       const creationDiv = dom.createElement('div')
       const me = authn.currentUser()
+      if (!me) {
+        return creationDiv
+      }
       const creationContext = {
         // folder: subject,
         div: creationDiv,
@@ -273,8 +306,8 @@ export const longChatPane = {
         noun,
         statusArea: creationDiv,
         me,
-        refreshTarget
-      }
+        refreshTarget: refreshTarget as HTMLTableElement | undefined
+      } as CreationContext
       const chatPane = context.session.paneRegistry.byName('chat')
       const relevantPanes = [chatPane]
       UI.create.newThingUI(creationContext, context, relevantPanes) // Have to pass panes down  newUI
@@ -289,22 +322,25 @@ export const longChatPane = {
       return instancesDiv
     }
 
-    let otherChatsArea = null
+    let otherChatsArea: HTMLElement | null = null
     async function otherChatsHandler (_event) {
       if (!otherChatsArea) { // Lazy build when needed
         // Expand
-        otherChatsArea = dom.createElement('div')
-        otherChatsArea.style = SIDEBAR_COMPONENT_STYLE
-        otherChatsArea.style.maxHeight = triptychHeight
-        otherChatsArea.appendChild(panelCloseButton(otherChatsArea))
+        const area = dom.createElement('div')
+        otherChatsArea = area
+        area.style = SIDEBAR_COMPONENT_STYLE
+        area.style.maxHeight = triptychHeight
+        area.appendChild(panelCloseButton(area))
 
-        otherChatsArea.appendChild(await renderInstances(ns.meeting('LongChat'), 'chat'))
+        area.appendChild(await renderInstances(ns.meeting('LongChat'), 'chat'))
       }
+      const area = otherChatsArea as HTMLElement | null
+      if (!area) return
       // Toggle visibility with button clicks
-      if (paneLeft.contains(otherChatsArea)) {
-        otherChatsArea.parentNode.removeChild(otherChatsArea)
+      if (paneLeft.contains(area)) {
+        area.remove()
       } else {
-        paneLeft.appendChild(otherChatsArea)
+        paneLeft.appendChild(area)
       }
     } // otherChatsHandler
 
@@ -312,41 +348,47 @@ export const longChatPane = {
     //
     /* Build a participants list drawer the side
      */
-    let participantsArea
+    let participantsArea: HTMLElement | null = null
     function participantsHandler (_event) {
       if (!participantsArea) {
         // Expand
-        participantsArea = dom.createElement('div')
-        participantsArea.style = SIDEBAR_COMPONENT_STYLE
-        participantsArea.style.maxHeight = triptychHeight
-        participantsArea.appendChild(panelCloseButton(participantsArea))
+        const area = dom.createElement('div')
+        participantsArea = area
+        area.style = SIDEBAR_COMPONENT_STYLE
+        area.style.maxHeight = triptychHeight
+        area.appendChild(panelCloseButton(area))
 
         // Record my participation and display participants
         const me = authn.currentUser()
-        if (!me) alert('Should be logeed in for partipants panel')
+        if (!me) {
+          alert('Should be logeed in for partipants panel')
+          return
+        }
         UI.pad.manageParticipation(
           dom,
-          participantsArea,
+          area,
           chatChannel.doc(),
           chatChannel,
           me,
           {}
         )
       }
+      const area = participantsArea as HTMLElement | null
+      if (!area) return
       // Toggle appearance in sidebar with clicks
       // Note also it can remove itself using the X button
-      if (paneLeft.contains(participantsArea)) {
+      if (paneLeft.contains(area)) {
         // Close participants  (hide or delete??)
-        participantsArea.parentNode.removeChild(participantsArea)
+        area.remove()
         participantsArea = null
       } else {
-        paneLeft.appendChild(participantsArea)
+        paneLeft.appendChild(area)
       }
     } // participantsHandler
 
     let chatChannel = subject
-    let selectedMessage = null
-    let thread = null
+    let selectedMessage: $rdf.NamedNode | null = null
+    let thread: $rdf.NamedNode | null = null
     if (kb.holds(subject, ns.rdf('type'), ns.meeting('LongChat'))) {
       // subject is the chatChannel
       // eslint-disable-next-line no-console
@@ -358,7 +400,8 @@ export const longChatPane = {
       // eslint-disable-next-line no-console
       console.log('Thread is subject ' + subject.uri)
       thread = subject
-      const rootMessage = kb.the(null, ns.sioc('has_reply'), thread, thread.doc())
+      const threadNode = subject
+      const rootMessage = kb.the(null, ns.sioc('has_reply'), threadNode, threadNode.doc())
       if (!rootMessage) throw new Error('Thread has no root message ' + thread)
       chatChannel = kb.any(null, ns.wf('message'), rootMessage)
       if (!chatChannel) throw new Error('Thread root has no link to chatChannel')
@@ -428,14 +471,18 @@ export const longChatPane = {
     menuButton.addEventListener('click', preferencesButtonPressed)
 
     div.setAttribute('class', 'chatPane')
-    const options = { infinite: true }
-    const participantsHandlerContext = { noun: 'chat room', div, dom }
-    participantsHandlerContext.me = authn.currentUser() // If already logged on
+    const options: InfiniteMessageAreaOptions = { infinite: true }
+    const participantsHandlerContext: ParticipantsHandlerContext = {
+      noun: 'chat room',
+      div,
+      dom,
+      me: authn.currentUser()
+    }
 
-    async function showThread (thread, options) {
+    async function showThread (thread: $rdf.NamedNode, options: InfiniteMessageAreaOptions) {
       // eslint-disable-next-line no-console
       console.log('@@@@ showThread thread ' + thread)
-      const newOptions = {} // @@@ inherit
+      const newOptions: InfiniteMessageAreaOptions = { infinite: true } // @@@ inherit
       newOptions.thread = thread
       newOptions.includeRemoveButton = true
 
@@ -472,7 +519,7 @@ export const longChatPane = {
       if (selectedMessage) {
         options.selectedMessage = selectedMessage
       }
-      if (paneOptions.solo) {
+      if (paneOptions?.solo) {
         // This is the top pane, title, scrollbar etc are ours
         options.solo = true
       }
@@ -493,7 +540,7 @@ export const longChatPane = {
       paneMiddle.appendChild(chatControl)
     }
     // eslint-disable-next-line no-console
-    buildPane().then(console.log('async - chat pane built'))
+    buildPane().then(() => console.log('async - chat pane built'))
     return div
   }
 }

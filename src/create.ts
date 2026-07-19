@@ -57,7 +57,7 @@ async function createChatThing (chatContainer, me) {
   {
     me,
     newBase: chatContainer.value
-  })
+  }) as { newInstance: NamedNode }
   return created.newInstance
 }
 

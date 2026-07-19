@@ -2,7 +2,15 @@
   "name": "chat-pane",
   "version": "3.0.4-2",
   "description": "Solid-compatible Panes: Chat",
-  "main": "dist/main.js",
+  "main": "dist/index.cjs.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.esm.js",
+      "require": "./dist/index.cjs.js"
+    }
+  },
   "files": [
     "dist/",
     "README.md",
@@ -10,18 +18,17 @@
   ],
   "scripts": {
     "clean": "rm -rf dist",
-    "build": "npm run clean && npm run typecheck && npm run build-dist",
-    "build-dist": "npm run build-js && npm run build-types",
-    "build-js": "babel src --out-dir dist --extensions '.ts,.js' --source-maps",
-    "build-types": "tsc --emitDeclarationOnly",
+    "build": "npm run typecheck && npm run clean && vite build",
+    "watch": "vite build --watch",
     "lint": "eslint",
     "lint-fix": "eslint --fix",
     "typecheck": "tsc --noEmit",
-    "test": "jest",
-    "watch": "webpack --watch",
+    "test": "npm run typecheck-test && vitest run",
+    "test-coverage": "vitest run --coverage",
+    "typecheck-test": "tsc --noEmit -p tsconfig.test.json",
     "prepublishOnly": "npm run build && npm run lint && npm run test",
     "preversion": "npm run lint && npm run typecheck && npm run test",
-    "start": "webpack serve --config webpack.dev.config.mjs --open"
+    "start": "vite"
   },
   "repository": {
     "type": "git",
@@ -48,40 +55,32 @@
   },
   "homepage": "https://github.com/SolidOS/chat-pane",
   "devDependencies": {
-    "@babel/cli": "^7.28.6",
-    "@babel/core": "^7.28.6",
-    "@babel/preset-env": "^7.28.6",
-    "@babel/preset-typescript": "^7.28.5",
-    "@testing-library/dom": "^10.4.1",
-    "@testing-library/jest-dom": "^6.9.1",
-    "@types/jest": "^30.0.0",
+    "@types/node": "^22.20.0",
     "@typescript-eslint/parser": "^8.53.1",
-    "babel-jest": "^30.2.0",
-    "babel-loader": "^10.0.0",
     "buffer": "^6.0.3",
     "eslint": "^9.39.2",
     "globals": "^17.1.0",
-    "html-webpack-plugin": "^5.6.6",
-    "jest": "^30.2.0",
-    "jest-environment-jsdom": "^30.2.0",
-    "jest-fetch-mock": "^3.0.3",
+    "jsdom": "^29.1.1",
     "neostandard": "^0.13.0",
-    "node-polyfill-webpack-plugin": "^4.1.0",
     "pane-registry": "^3.1.2-2",
-    "typescript": "^5.9.3",
-    "webpack": "^5.104.1",
-    "webpack-cli": "^7.0.0",
-    "webpack-dev-server": "^5.2.3"
+    "solidos-toolkit": "dev",
+    "typescript": "^5.9.3"
   },
   "dependencies": {
     "pane-registry": "3.1.2-2",
     "patch-package": "^8.0.1",
     "rdflib": "^2.3.9",
     "solid-logic": "^4.0.8-0",
-    "solid-ui": "3.1.3-9"
+    "solid-ui": "3.1.3-9",
+    "vite": "^8.0.16",
+    "vitest": "^4.0.18",
+    "vitest-axe": "^0.1.0"
   },
   "solidosDependencies": [
     "solid-ui",
     "pane-registry"
-  ]
+  ],
+  "allowScripts": {
+    "fsevents@2.3.3": true
+  }
 }
