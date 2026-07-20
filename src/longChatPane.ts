@@ -3,10 +3,9 @@
  **  A long chat consists a of a series of chat files saved by date.
  */
 import { authn } from 'solid-logic'
-import * as UI from 'solid-ui'
-import * as $rdf from 'rdflib'
+import { create, icons, infiniteMessageArea, login, ns, pad, preferences, style, widgets } from 'solid-ui'
+import { parse, type NamedNode } from 'rdflib'
 import { log } from './debug'
-const ns = UI.ns
 
 const mainClass = ns.meeting('LongChat') // @@ something from SIOC?
 
@@ -17,7 +16,7 @@ interface CreationContext {
   dom: Document
   noun: string
   statusArea: HTMLElement
-  me: $rdf.NamedNode
+  me: NamedNode
   refreshTarget?: HTMLTableElement
 }
 
@@ -25,15 +24,15 @@ interface ParticipantsHandlerContext {
   noun: string
   div: HTMLElement
   dom: Document
-  me?: $rdf.NamedNode | null
+  me?: NamedNode | null
 }
 
 interface InfiniteMessageAreaOptions {
   infinite: boolean
-  selectedMessage?: $rdf.NamedNode | null
+  selectedMessage?: NamedNode | null
   solo?: boolean
-  thread?: $rdf.NamedNode | null
-  showThread?: (thread: $rdf.NamedNode, options: InfiniteMessageAreaOptions) => Promise<void>
+  thread?: NamedNode | null
+  showThread?: (thread: NamedNode, options: InfiniteMessageAreaOptions) => Promise<void>
   authorDateOnLeft?: boolean
   newestFirst?: boolean
   includeRemoveButton?: boolean
@@ -43,14 +42,14 @@ interface InfiniteMessageAreaOptions {
 // const menuIcon = 'noun_897914.svg'
 const SPANNER_ICON = 'noun_344563.svg'
 // resize: horizontal;  min-width: 20em;
-const SIDEBAR_COMPONENT_STYLE = UI.style.sidebarComponentStyle || ' padding: 0.5em; width: 100%;'
-const SIDEBAR_STYLE = UI.style.sidebarStyle || 'overflow-x: auto; overflow-y: auto; border-radius: 1em; border: 0.1em solid white;'
+const SIDEBAR_COMPONENT_STYLE = style.sidebarComponentStyle || ' padding: 0.5em; width: 100%;'
+const SIDEBAR_STYLE = style.sidebarStyle || 'overflow-x: auto; overflow-y: auto; border-radius: 1em; border: 0.1em solid white;'
 // was purple border
 export const longChatPane = {
   CHAT_LOCATION_IN_CONTAINER,
 
   // noun_704.svg Canoe   noun_346319.svg = 1 Chat  noun_1689339.svg = three chat
-  icon: UI.icons.iconBase + 'noun_1689339.svg',
+  icon: icons.iconBase + 'noun_1689339.svg',
 
   name: 'long chat',
 
@@ -169,7 +168,7 @@ export const longChatPane = {
      ** and per instance/user combo. Per instance? not sure about unless it is valuable
      ** for everyone to be seeing the same thing.
      */
-    // const DCT = $rdf.Namespace('http://purl.org/dc/terms/')
+    // const DCT = Namespace('http://purl.org/dc/terms/')
     const preferencesFormText = `
     @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
     @prefix solid: <http://www.w3.org/ns/solid/terms#>.
@@ -209,7 +208,7 @@ export const longChatPane = {
     const preferencesFormDoc = preferencesForm.doc()
     if (!kb.holds(undefined, undefined, undefined, preferencesFormDoc)) {
       // If not loaded already
-      $rdf.parse(preferencesFormText, kb, preferencesFormDoc.uri, 'text/turtle') // Load form directly
+      parse(preferencesFormText, kb, preferencesFormDoc.uri, 'text/turtle') // Load form directly
     }
     const preferenceProperties = kb
       .statementsMatching(null, ns.ui.property, null, preferencesFormDoc)
@@ -234,7 +233,7 @@ export const longChatPane = {
 
       const me = authn.currentUser()
       if (me) {
-        await UI.login.registrationControl(
+        await login.registrationControl(
           { noun, me, statusArea, dom, div: registrationArea },
           chatChannel,
           mainClass
@@ -242,7 +241,7 @@ export const longChatPane = {
 
         log('Registration control finsished.')
         preferencesArea.appendChild(
-          UI.preferences.renderPreferencesForm(
+          preferences.renderPreferencesForm(
             chatChannel,
             mainClass,
             preferencesForm,
@@ -267,7 +266,7 @@ export const longChatPane = {
         panel.parentNode.removeChild(panel)
       }
       const button =
-        UI.widgets.button(context.dom, UI.icons.iconBase + 'noun_1180156.svg', 'close', removePanel)
+        widgets.button(context.dom, icons.iconBase + 'noun_1180156.svg', 'close', removePanel)
       button.style.float = 'right'
       button.style.margin = '0.7em'
       delete button.style.backgroundColor // do not want white
@@ -311,14 +310,14 @@ export const longChatPane = {
       } as CreationContext
       const chatPane = context.session.paneRegistry.byName('chat')
       const relevantPanes = [chatPane]
-      UI.create.newThingUI(creationContext, context, relevantPanes) // Have to pass panes down  newUI
+      create.newThingUI(creationContext, context, relevantPanes) // Have to pass panes down  newUI
       return creationDiv
     }
 
     async function renderInstances (theClass, noun) {
       const instancesDiv = dom.createElement('div')
       const context = { dom, div: instancesDiv, noun }
-      await UI.login.registrationList(context, { public: true, private: true, type: theClass })
+      await login.registrationList(context, { public: true, private: true, type: theClass })
       instancesDiv.appendChild(renderCreationControl(instancesDiv, noun))
       return instancesDiv
     }
@@ -365,7 +364,7 @@ export const longChatPane = {
           alert('Should be logeed in for partipants panel')
           return
         }
-        UI.pad.manageParticipation(
+        pad.manageParticipation(
           dom,
           area,
           chatChannel.doc(),
@@ -388,8 +387,8 @@ export const longChatPane = {
     } // participantsHandler
 
     let chatChannel = subject
-    let selectedMessage: $rdf.NamedNode | null = null
-    let thread: $rdf.NamedNode | null = null
+    let selectedMessage: NamedNode | null = null
+    let thread: NamedNode | null = null
     if (kb.holds(subject, ns.rdf('type'), ns.meeting('LongChat'))) {
       // subject is the chatChannel
 
@@ -442,9 +441,9 @@ export const longChatPane = {
 
     // Button to bring up participants drawer on left
     const participantsIcon = 'noun_339237.svg'
-    const participantsButton = UI.widgets.button(
+    const participantsButton = widgets.button(
       dom,
-      UI.icons.iconBase + participantsIcon,
+      icons.iconBase + participantsIcon,
       'participants ...'
     ) // wider var
     buttonCell.appendChild(participantsButton)
@@ -452,18 +451,18 @@ export const longChatPane = {
 
     // Button to bring up otherChats drawer on left
     const otherChatsIcon = 'noun_1689339.svg' // long chat icon -- not ideal for a set of chats @@
-    const otherChatsButton = UI.widgets.button(
+    const otherChatsButton = widgets.button(
       dom,
-      UI.icons.iconBase + otherChatsIcon,
+      icons.iconBase + otherChatsIcon,
       'List of other chats ...'
     ) // wider var
     buttonCell.appendChild(otherChatsButton)
     otherChatsButton.addEventListener('click', otherChatsHandler)
 
     let preferencesArea = null
-    const menuButton = UI.widgets.button(
+    const menuButton = widgets.button(
       dom,
-      UI.icons.iconBase + SPANNER_ICON,
+      icons.iconBase + SPANNER_ICON,
       'Setting ...'
     ) // wider var
     buttonCell.appendChild(menuButton)
@@ -479,7 +478,7 @@ export const longChatPane = {
       me: authn.currentUser()
     }
 
-    async function showThread (thread: $rdf.NamedNode, options: InfiniteMessageAreaOptions) {
+    async function showThread (thread: NamedNode, options: InfiniteMessageAreaOptions) {
       log('@@@@ showThread thread ' + thread)
       const newOptions: InfiniteMessageAreaOptions = { infinite: true } // @@@ inherit
       newOptions.thread = thread
@@ -492,7 +491,7 @@ export const longChatPane = {
 
       log('Options for showThread message Area', newOptions)
 
-      const chatControl = await UI.infiniteMessageArea(
+      const chatControl = await infiniteMessageArea(
         dom,
         kb,
         chatChannel,
@@ -507,10 +506,10 @@ export const longChatPane = {
     async function buildPane () {
       let prefMap
       try {
-        prefMap = await UI.preferences.getPreferencesForClass(
+        prefMap = await preferences.getPreferencesForClass(
           chatChannel, mainClass, preferenceProperties, participantsHandlerContext)
       } catch (err) {
-        UI.widgets.complain(participantsHandlerContext, err)
+        widgets.complain(participantsHandlerContext, err)
       }
       for (const propuri in prefMap) {
         options[propuri.split('#')[1]] = prefMap[propuri]
@@ -527,7 +526,7 @@ export const longChatPane = {
       } else { // either show thread *or* allow new threads. Threads don't nest but they could
         options.showThread = showThread
       }
-      const chatControl = await UI.infiniteMessageArea(
+      const chatControl = await infiniteMessageArea(
         dom,
         kb,
         chatChannel,
