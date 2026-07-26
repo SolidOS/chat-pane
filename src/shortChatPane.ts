@@ -4,6 +4,7 @@
  ** and investigate the interop between them.
  */
 /* global $rdf */
+import * as $rdf from 'rdflib'
 import { store } from 'solid-logic'
 import * as UI from 'solid-ui'
 
@@ -118,21 +119,25 @@ export const shortChatPane = {
 
     const div = dom.createElement('div')
     div.setAttribute('class', 'chatPane')
-    const options = {} // Like newestFirst
-    let messageStore
+    const options: { query?: $rdf.Query } = {} // Like newestFirst
+    let messageStore: $rdf.NamedNode | undefined
     if (kb.holds(subject, ns.rdf('type'), ns.meeting('Chat'))) {
       // subject may be the file
       messageStore = subject.doc()
     } else if (kb.any(subject, UI.ns.wf('message'))) {
-      messageStore = store.any(subject, UI.ns.wf('message')).doc()
+      const message = store.any(subject, UI.ns.wf('message')) as $rdf.NamedNode | null
+      if (!message || message.termType !== 'NamedNode') {
+        throw new Error('Chat subject has no linked message store')
+      }
+      messageStore = message.doc()
     } else if (
       kb.holds(undefined, ns.rdf('type'), ns.foaf('ChatChannel'), subject) ||
       kb.holds(subject, ns.rdf('type'), ns.foaf('ChatChannel'))
     ) {
       // subject is the file
       const ircLogQuery = function () {
-        const query = new $rdf.Query('IRC log entries')
-        const v = []
+        const query = new $rdf.Query('IRC log entries', null)
+        const v: Record<string, $rdf.Variable> = {}
         const vv = ['chan', 'msg', 'date', 'list', 'pred', 'creator', 'content']
         vv.forEach(function (x) {
           query.vars.push((v[x] = $rdf.variable(x)))
@@ -147,7 +152,11 @@ export const shortChatPane = {
       messageStore = subject.doc()
       options.query = ircLogQuery()
     } else {
-      complain('Unknown chat type')
+      complain('Unknown chat type', '#eed')
+    }
+
+    if (!messageStore) {
+      throw new Error('Unable to determine chat message store')
     }
 
     div.appendChild(UI.messageArea(dom, kb, subject, messageStore, options))
