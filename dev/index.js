@@ -19,12 +19,13 @@ const chatPaneContainer = document.getElementById('chatPane')
 loginBanner.appendChild(UI.login.loginStatusBox(document, null, {}))
 
 async function finishLogin () {
-  await authSession.handleIncomingRedirect()
+  await authn.checkUser()
   // Clear fetch auth metadata cached before login (often read-only WAC-Allow from anonymous requests).
   // Without this, updater.editable() can stay false even when the user can PATCH after authentication.
   store.updater.flagAuthorizationMetadata(store)
   const session = authSession
-  if (session.info.isLoggedIn) {
+  const isLoggedIn = session?.info?.isLoggedIn ?? session?.isActive ?? Boolean(session?.webId)
+  if (isLoggedIn) {
     const me = authn.currentUser()
     // Update the page with the status.
     webId.innerHTML = 'Logged in as: ' + me.uri
