@@ -130,27 +130,75 @@ function showCurrentChat (uri) {
   currentChatDiv.innerHTML = `Current chat: <a href="${uri}" target="_blank" rel="noopener noreferrer">${uri}</a>`
 }
 
+function showChatError (message) {
+  currentChatDiv.textContent = `Error: ${message}`
+  currentChatDiv.style.color = '#b00020'
+}
+
+function clearChatErrorStyle () {
+  currentChatDiv.style.color = ''
+}
+
+function handleChatLoadError (prefix, err) {
+  const message = (err && err.message) ? err.message : String(err)
+  console.error(prefix, err)
+  if (message.includes('URI is not a chat-pane LongChat in index.ttl')) {
+    showChatError('This URI is not a chat pane. Please use a LongChat URI')
+  } else {
+    showChatError(message)
+  }
+  chatPaneContainer.innerHTML = ''
+}
+
+function toIndexTtlThisUri (uri) {
+  const withoutHash = uri.split('#')[0]
+  if (withoutHash.endsWith('/index.ttl')) {
+    return `${withoutHash}#this`
+  }
+  if (withoutHash.endsWith('/')) {
+    return `${withoutHash}index.ttl#this`
+  }
+  return `${withoutHash}/index.ttl#this`
+}
+
+async function assertIsLongChatUri (uri) {
+  const normalizedUri = toIndexTtlThisUri(uri)
+  const subject = $rdf.sym(normalizedUri)
+  const doc = subject.doc()
+
+  await fetcher.load(doc.uri)
+
+  const isLongChat = store.holds(subject, UI.ns.rdf('type'), UI.ns.meeting('LongChat'), doc)
+  if (!isLongChat) {
+    throw new Error(`URI is not a chat-pane LongChat in index.ttl: ${doc.uri}`)
+  }
+
+  return normalizedUri
+}
+
 async function loadChatUri (uri) {
   if (!uri) return
   const trimmedUri = uri.trim()
   if (!trimmedUri) return
-  chatUriInput.value = trimmedUri
-  window.location.hash = encodeURIComponent(trimmedUri)
-  showCurrentChat(trimmedUri)
-  await fetcher.load(trimmedUri)
-  await appendChatPane(trimmedUri)
+  const validatedUri = await assertIsLongChatUri(trimmedUri)
+  clearChatErrorStyle()
+  chatUriInput.value = validatedUri
+  window.location.hash = encodeURIComponent(validatedUri)
+  showCurrentChat(validatedUri)
+  await fetcher.load(validatedUri)
+  await appendChatPane(validatedUri)
 }
 
 loadChatButton.addEventListener('click', () => {
   loadChatUri(chatUriInput.value).catch(err => {
-    console.error('Failed to load chat URI', err)
+    handleChatLoadError('Failed to load chat URI', err)
   })
 })
 
 chatUriInput.addEventListener('keydown', event => {
   if (event.key === 'Enter') {
     loadChatUri(chatUriInput.value).catch(err => {
-      console.error('Failed to load chat URI', err)
+      handleChatLoadError('Failed to load chat URI', err)
     })
   }
 })
@@ -161,6 +209,6 @@ chatUriInput.value = initialUri
 // in authenticated context and editable() does not get stuck with stale anonymous permissions.
 finishLogin().then(() => {
   loadChatUri(initialUri).catch(err => {
-    console.error('Failed to initialize chat pane', err)
+    handleChatLoadError('Failed to initialize chat pane', err)
   })
 })
