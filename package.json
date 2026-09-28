@@ -67,6 +67,7 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
+    "pane-registry": "5.0.0-1",
     "patch-package": "^8.0.1",
     "rdflib": "^2.4.1",
     "solid-logic": "^6.0.0",
