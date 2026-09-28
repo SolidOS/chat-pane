@@ -62,7 +62,7 @@
     "globals": "^17.1.0",
     "jsdom": "^29.1.1",
     "neostandard": "^0.13.0",
-    "pane-registry": "^5.0.0",
+    "pane-registry": "^5.0.1",
     "solidos-toolkit": "dev",
     "typescript": "^5.9.3"
   },
@@ -70,7 +70,7 @@
     "patch-package": "^8.0.1",
     "rdflib": "^2.4.1",
     "solid-logic": "^6.0.0",
-    "solid-ui": "^5.0.0",
+    "solid-ui": "^5.0.1",
     "vite": "^8.0.16",
     "vitest": "^4.0.18",
     "vitest-axe": "^0.1.0"
