@@ -58,7 +58,7 @@
     "@types/node": "^22.20.0",
     "@typescript-eslint/parser": "^8.53.1",
     "buffer": "^6.0.3",
-    "eslint": "^9.39.2",
+    "eslint": "^10.11.0",
     "globals": "^17.1.0",
     "jsdom": "^29.1.1",
     "neostandard": "^0.13.0",
