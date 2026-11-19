@@ -1,6 +1,6 @@
 {
   "name": "chat-pane",
-  "version": "4.0.0",
+  "version": "4.1.1-0",
   "description": "Solid-compatible Panes: Chat",
   "main": "dist/index.cjs.js",
   "types": "dist/index.d.ts",
@@ -69,11 +69,11 @@
     "vitest-axe": "^0.1.0"
   },
   "dependencies": {
-    "pane-registry": "5.0.2-2",
+    "pane-registry": "5.1.2-0",
     "patch-package": "^8.0.1",
     "rdflib": "2.4.1",
-    "solid-logic": "6.0.1-5",
-    "solid-ui": "5.0.2-6"
+    "solid-logic": "6.2.1-0",
+    "solid-ui": "5.1.1-0"
   },
   "solidosDependencies": [
     "rdflib",
